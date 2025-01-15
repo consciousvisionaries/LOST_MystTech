@@ -21,6 +21,8 @@ unsigned long loggedMessages = 0;
 String recordLog[SIZE_LOG] = {};
 String tmp = "";
 
+bool mp3PlayerInitialized = false;
+
 // Function to print a simple statement (appends to comment)
 void printSerial(String statement) {
 
@@ -51,14 +53,17 @@ void printSerialln(String statement, int msdelay) {
   }
   comment = String(loggedMessages) + comment;
 
-  if (SHOW_LOG) {
-    Serial.println(comment);
-  }
+  if (comment != recordLog[(loggedMessages - 1)]) {
 
-  if (RECORD_LOG) {
+    if (SHOW_LOG) {
+      Serial.println(comment);
+    }
 
-    if (loggedMessages < SIZE_LOG) {
-      recordLog[loggedMessages++] = comment;  // Store the log entry
+    if (RECORD_LOG) {
+
+      if (loggedMessages < SIZE_LOG) {
+        recordLog[loggedMessages++] = comment;  // Store the log entry
+      }
     }
   }
   comment = "";
@@ -88,7 +93,7 @@ void setup() {
 
   delay(1000);
 
-  
+
 
   loadAllSettings();
   printSerialln(".credentials call completed", 1000);
@@ -116,6 +121,9 @@ void setup() {
   setupFASTLED_GPIO();
   printSerialln(".fled call completed", 1000);
 
+  setupMP3Player();
+  printSerialln(".mp3 call completed", 1000);
+
   setupDashboard();
   printSerialln(".dashboard call completed", 1000);
 
@@ -130,8 +138,15 @@ void setup() {
   printSerialln("                 Topic: " + String(mqttSettings.mqttTopic), 0);
   printSerialln("                        ", 0);
   printSerialln("      Firmware Version: " + nodeSettings.storedVersion, 0);
-  printSerialln(" MystTECH DEVICE READY: " + String(MYSTTECH_MODEL) + "", 100);
-
+  printSerialln(" MystTECH DEVICE READY: " + String(MYSTTECH_MODEL) + "", 1000);
+  printSerialln("", 1000);
+  if (MP3_PLAYER && mp3PlayerInitialized) {
+    printSerialln("   MP3 Player: Active, Initialized", 1000);
+  } else if (MP3_PLAYER) {
+    printSerialln("   MP3 Player: Active, Not Initialized", 1000);
+  } else {
+    printSerialln("   MP3 Player: Not Active", 1000);
+  }
 
   sendMessageMQTTPayload("New Device updating MystTECH UI ...", "FirmwareStatus-->");
 
@@ -144,13 +159,14 @@ void setup() {
 
 void loop() {
 
- 
+
   loopFIRMWARE();
   checkForWin();
   checkVersionWinScenario();
   clientMQTTConnected();
   loopGPIO();
   loopFASTLED();
+  mp3Loop();
 
   if (String(NR_TYPE) == "3D_ROTARY_PULSE" && NUM_FLED_OUTPUTS == 3) {
     funcRotaryDialPuzzle();

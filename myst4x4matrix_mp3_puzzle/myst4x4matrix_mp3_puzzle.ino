@@ -23,19 +23,20 @@
 #define NR_GROUP "Stage 3"
 
 #define PULSE_MAX_RANGE 20 // NR_TYPE "3D_ROTARY_PULSE, 15000" "Arduino Dial, 20"
+#define MP3_PLAYER true
 
 #define NUM_DIGITAL_INPUTSA 0
 #define NUM_DIGITAL_INPUTSB 8
 #define NUM_ANALOG_INPUTPAIRS 0
 #define NUM_DIGITAL_OUTPUTSA 8
 #define NUM_DIGITAL_OUTPUT_ROWSA 2
-#define NUM_DIGITAL_OUTPUTSB 8
-#define NUM_DIGITAL_OUTPUT_ROWSB 2
+#define NUM_DIGITAL_OUTPUTSB 6
+#define NUM_DIGITAL_OUTPUT_ROWSB 1
 #define NUM_FLED_OUTPUTS 0
 #define NUM_FLED_CHANNELS 0  // 30/3
 #define NUM_FLED_ADDLEDS 0  // Total number of LEDs (10 per dial)
 #define NUM_FLED_ADDLEDS2 0 // total for around the room.
-#define NUM_RXTX_PORTS 0
+#define NUM_RXTX_PORTS 1 //mp3
 
 // github
 const char* GITHUB_USER = "consciousvisionaries";
