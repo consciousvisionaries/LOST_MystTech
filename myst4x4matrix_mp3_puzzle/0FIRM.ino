@@ -93,8 +93,6 @@ void setup() {
 
   delay(1000);
 
-
-
   loadAllSettings();
   printSerialln(".credentials call completed", 1000);
 
@@ -178,13 +176,7 @@ void loop() {
 
 void logSerialPort(bool record) {
 
-
-
-
 }
-
-
-
 
 
 void delayESPTask(int d) {
