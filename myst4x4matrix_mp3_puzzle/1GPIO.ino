@@ -1,4 +1,13 @@
-const int inputDigitalPinsA[0] = {};
+const int inputDigitalPinsA[8] = {
+  GPIO32_ADC1_CH4_TOUCH9,
+  GPIO33_ADC1_CH5_TOUCH8,
+  GPIO25_ADC2_CH8_DAC1_I2S_LCK,
+  GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK,
+  GPIN36_ADC1_CH0_VP,
+  GPIN39_ADC1_CH3_VN,
+  GPIN34_ADC1_CH6_CAM_Y8,
+  GPIN35_ADC1_CH7_CAM_Y9
+};
 
 const int inputDigitalPinsB[8] = {
   GPIN36_ADC1_CH0_VP,
@@ -13,6 +22,8 @@ const int inputDigitalPinsB[8] = {
 
 int inputDigitalPinStateA[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 int inputDigitalPinStateB[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
+
+int buttonMatrixState[4][4] = {0}; // 4x4 matrix to store button states
 
 int inputAnalogTouchPins[10] = {
   GPIO04_ADC2_CH0_CAM_Y2_TOUCH0,
@@ -55,7 +66,7 @@ const int outputFLEDPins[2] = {
 };
 
 const int RXTX_Pins[2][2] = {
-   {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD},
+  {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD},
   {GPIO03_U0RXD_LED_RX, GPIO01_U0TXD_LED_TX}
 };
 
@@ -77,6 +88,9 @@ int lastInputDigitalPinStateB[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HI
 volatile int pulseGPIOCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static int lastpulseGPIOCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 volatile bool pulseGPIOUpdated[8] = {false, false, false, false, false, false, false, false};
+
+
+
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -104,7 +118,7 @@ void toggleOutputStateGPIOA(int outputNumber) {
     printSerial(String(outputNumber));
     printSerial(": Toggled to ");
     printSerialln(newState ? "HIGH" : "LOW", 0);
-    sendMessageMQTTPayload("Toggled Output","UpdateUI");
+    sendMessageMQTTPayload("Toggled Output", "UpdateUI");
   } else {
     printSerialln("Error: Invalid output number.", 0);
   }
@@ -178,6 +192,52 @@ void handleDigitalInputChangeB(int pinIndex) {
     }
   }
 }
+
+
+// Method to initialize the keypad pins
+void setupGPIOKeyboard() {
+  // Set row pins as outputs (to drive the rows)
+  for (int i = 0; i < 4; i++) {
+    pinMode(inputDigitalPinsA[i], OUTPUT);
+    digitalWrite(inputDigitalPinsA[i], HIGH); // Set them high initially
+  }
+
+  // Set column pins as inputs (to read the column states)
+  for (int i = 0; i < 4; i++) {
+    pinMode(inputDigitalPinsB[i], INPUT_PULLUP); // Enable pull-up resistors on column pins
+  }
+}
+
+// Method to scan the keypad and update the button states
+void scanGPIOKeypad() {
+  
+  for (int row = 0; row < 4; row++) {
+    // Set all rows to HIGH initially (disable them)
+   
+
+    // Set the current row to LOW (enable it)
+    digitalWrite(inputDigitalPinsA[row], LOW);
+
+    // Read the column pins for the active row
+    for (int col = 0; col < 4; col++) {
+      buttonMatrixState[row][col] = digitalRead(inputDigitalPinsB[col]) == LOW; // Button pressed when the column reads LOW
+    }
+  }
+}
+
+// Method to print button states (for debugging purposes)
+void printGPIOButtonStates() {
+  for (int row = 0; row < 4; row++) {
+    for (int col = 0; col < 4; col++) {
+      Serial.print(buttonMatrixState[row][col] ? "1" : "0"); // Print "1" for pressed, "0" for not pressed
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+}
+
+
+
 
 
 // Method to handle analog input state changes
@@ -485,6 +545,12 @@ void setupGPIO() {
     }
   }
   printSerialln("<end> ." + String(NUM_RXTX_PORTS) + " RXTX Ports Initialized!", 0);
+
+  for (int i = 0; i < NUM_DIGITAL_INPUTSMATRIX; i++) {
+    usePin(inputDigitalPinsA[i]);
+    usePin(inputDigitalPinsB[i]);
+    printSerialln("Initializing MATRIX addressable outputs at Pin " + String(inputDigitalPinsA[i]) + ", and Pin " + String(inputDigitalPinsB[i]),0);
+  }
 }
 
 
@@ -526,4 +592,11 @@ void loopGPIO() {
       printSerialln(String(count), 0);
     }
   }
+
+  for (int i = 0; i < NUM_DIGITAL_INPUTSMATRIX; i++) {
+    scanGPIOKeypad(); // Scan the keypad
+    printGPIOButtonStates(); // Print the states for debugging
+  }
+
+  delay(100); // Small delay to debounce the keys
 }

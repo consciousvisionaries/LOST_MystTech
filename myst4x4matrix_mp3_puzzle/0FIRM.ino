@@ -118,6 +118,9 @@ void setup() {
   setupGPIO();
   printSerialln(".gpio call completed", 1000);
 
+  setupGPIOKeyboard();
+  printSerialln(".keyboard call completed", 1000);
+
   setupFASTLED_GPIO();
   printSerialln(".fled call completed", 1000);
 
@@ -153,7 +156,7 @@ void setup() {
   printSerialln(".device added to dashboard", 1000);
 
   sendADDMEMessageMQTT();
-  printSerialln(".addme has been shared on MQTT", 1000);
+  printSerialln(".addme has been requested on MQTT", 1000);
 
 }
 
@@ -168,9 +171,7 @@ void loop() {
   loopFASTLED();
   mp3Loop();
 
-  if (String(NR_TYPE) == "3D_ROTARY_PULSE" && NUM_FLED_OUTPUTS == 3) {
-    funcRotaryDialPuzzle();
-  } else if (String(NR_TYPE) == "4X4_MATRIX_MP3" && NUM_DIGITAL_INPUTSB == 8) {
+  if (String(NR_TYPE) == "4X4_MATRIX_MP3" && NUM_DIGITAL_INPUTSB == 8) {
     funcMatrixMP3Puzzle();
   }
 }
