@@ -4,12 +4,10 @@
 void funcMatrixMP3Puzzle() {
 
 
-  
 }
 
 
 void checkVersionWinScenario() {
-
 
   if (solutionFound && solutionStable) {
 
