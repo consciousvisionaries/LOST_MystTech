@@ -210,11 +210,12 @@ void setupGPIOKeyboard() {
 
 // Method to scan the keypad and update the button states
 void scanGPIOKeypad() {
-  
   for (int row = 0; row < 4; row++) {
-    // Set all rows to HIGH initially (disable them)
-   
-
+    // Set all rows to HIGH (disable them) before enabling the current row
+    for (int i = 0; i < 4; i++) {
+      digitalWrite(inputDigitalPinsA[i], HIGH);
+    }
+    
     // Set the current row to LOW (enable it)
     digitalWrite(inputDigitalPinsA[row], LOW);
 
@@ -224,6 +225,7 @@ void scanGPIOKeypad() {
     }
   }
 }
+
 
 // Method to print button states (for debugging purposes)
 void printGPIOButtonStates() {
