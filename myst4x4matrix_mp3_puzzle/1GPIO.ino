@@ -23,7 +23,7 @@ const int inputDigitalPinsB[8] = {
 int inputDigitalPinStateA[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 int inputDigitalPinStateB[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 
-int buttonMatrixState[4][4] = {0}; // 4x4 matrix to store button states
+int buttonMatrixState[4][4] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}; // 4x4 matrix to store button states
 
 int inputAnalogTouchPins[10] = {
   GPIO04_ADC2_CH0_CAM_Y2_TOUCH0,
