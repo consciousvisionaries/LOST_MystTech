@@ -100,23 +100,19 @@ const int outputFLEDPins[2] = {
 };
 
 const int RXTX_Pins[2][2] = {
-  {GPIO03_U0RXD_LED_RX, GPIO01_U0TXD_LED_TX},
-  {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD}
+  {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD},
+  {GPIO03_U0RXD_LED_RX, GPIO01_U0TXD_LED_TX}
 };
-
 
 int ledCount[3] = {0, 0, 0};
 int lastLedCount[3] = { -1, -1, -1}; // Tracks the last LED count for each dial
-
 
 static unsigned long lastExecutionTime = 0; // Tracks the last execution time
 
 int outputPins_initStateA[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 int outputPins_initStateB[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 
-
 volatile int lastStateAnalogInputs[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
-
 
 unsigned long lastDebounceTimeA[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // Store last debounce time for each input
 unsigned long lastDebounceTimeB[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // Store last debounce time for each input
@@ -129,10 +125,11 @@ volatile int pulseGPIOCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static int lastpulseGPIOCount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 volatile bool pulseGPIOUpdated[8] = {false, false, false, false, false, false, false, false};
 
-
-
 int FLEDCount[8] = {0, 0, 0, 0, 0, 0 , 0 , 0};
 int lastFLEDCount[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
+
+int buttonMatrixState[4][4] = {{false,false,false,false},{false,false,false,false},{false,false,false,false},{false,false,false,false}};
+int MATRIXOutputLEDStatus[4][4] = {{false,false,false,false},{false,false,false,false},{false,false,false,false},{false,false,false,false}};
 
 void saveNodeSettings() {
   preferences.begin("node", false);

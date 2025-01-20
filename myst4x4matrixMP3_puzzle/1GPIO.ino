@@ -134,6 +134,45 @@ void handleAnalogInputPairsChange2(int i) {
   }
 }
 
+
+
+void handleDigitalMatrixIOPairsChange() {
+
+  int rows = 0;
+  int columns = 0;
+
+  for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
+    
+    // Set all rows to HIGH (disable them) before enabling the current row
+    for (int i = 0; i < 4; i++) {
+      digitalWrite(digitalMatrixIOPins[0][i], HIGH);
+    }
+
+    // Set the current row to LOW (enable it)
+    digitalWrite(digitalMatrixIOPins[0][row], LOW);
+
+    // Read the column pins for the active row
+    for (int col = 0; col < 4; col++) {
+      buttonMatrixState[row][col] = digitalRead(digitalMatrixIOPins[1][col]) == LOW; // Button pressed when the column reads LOW
+    }
+  }
+
+
+
+
+}
+
+// Method to print button states (for debugging purposes)
+void printMATRIXButtonStates() {
+  for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
+    for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
+      Serial.print(buttonMatrixState[row][col] ? "1" : "0"); // Print "1" for pressed, "0" for not pressed
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+}
+
 // Array to track used pins
 bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller
 
@@ -159,7 +198,6 @@ void usePin(int nPin) {
 void setupGPIO() {
   Serial.begin(115200);
 
-
   initializeDigitalOutputsA();
   initializeDigitalOutputsB();
   initializeDigitalInputsA();
@@ -168,7 +206,7 @@ void setupGPIO() {
   initializeDigitalIOMatrix();
   initializeFLEDOutputs();
   initializeRXTXOutputs();
-
+  initializeMATRIXIOKeyboard();
 }
 
 // Main loop to handle GPIO activities
@@ -191,7 +229,24 @@ void loopGPIO() {
     handleAnalogInputPairsChange2(i);
   }
 
+  if (NUM_DIGITAL_IOMATRIXPAIRS >= 1) {
+    handleDigitalMatrixIOPairsChange();
+    printMATRIXButtonStates();
+  }
 
+}
+
+void initializeMATRIXIOKeyboard() {
+  // Set row pins as outputs (to drive the rows)
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[0][i], OUTPUT);
+    digitalWrite(digitalMatrixIOPins[0][i], HIGH); // Set them high initially
+  }
+
+  // Set column pins as inputs (to read the column states)
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[1][i], INPUT_PULLUP); // Enable pull-up resistors on column pins
+  }
 }
 
 void initializeDigitalOutputsA() {
@@ -489,7 +544,7 @@ void initializeRXTXOutputs() {
 
 void initializeDigitalIOMatrix() {
 
-  for (int i = 0; i < NUM_DIGITAL_IOMATRIX; i++) {
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
     for (int r = 0; r < 2; r++) {
       if (digitalMatrixIOPins[r][i] == GPIO17_U2TXD) {
         printSerial(" => Setting up GPIO17_U2TXD as an output...");
@@ -547,8 +602,5 @@ void initializeDigitalIOMatrix() {
       printSerialln(" set to INPUT_PULLUP.", 0);
     }
   }
-  printSerialln("<end> ." + String(NUM_DIGITAL_IOMATRIX) + " Matrix I\O Initialized.", 1000);
-
-
-
+  printSerialln("<end> ." + String(NUM_DIGITAL_IOMATRIXPAIRS) + " Matrix I\O Initialized.", 1000);
 }

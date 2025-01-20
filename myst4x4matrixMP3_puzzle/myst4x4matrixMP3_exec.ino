@@ -9,14 +9,8 @@ void exec_4x4matrixMP3_puzzle() {
             restartFlag = false;
             gameOverFlag = false;
             
-            // Reset last LED counts
-            for (int i = 0; i < NUM_FLED_CHANNELS; i++) {
-                lastLedCount[i] = -1;
-                ledCount[i] = -1;
-            }
-
-            // Reset MATRIX Display
-
+            resetFLED();
+            //resetMATRIXIO();
             
 
             send3D_ROTARY_PULSEMQTTData(ledCount[0], ledCount[1], ledCount[2]);
