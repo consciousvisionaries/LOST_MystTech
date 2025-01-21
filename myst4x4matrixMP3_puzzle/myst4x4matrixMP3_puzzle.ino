@@ -5,11 +5,13 @@
 #define AP_PASSWORD "MystTech" // 'localhost:1880/admin'
 
 #define PUZZLE_SOLUTION { 1, 3, 5, 7, 9, 11, 13, 15 }
-#define NUM_OF_SOLUTIONS 3
+#define NUM_OF_SOLUTIONS 8
 #define RECORD_LOG true
 #define SHOW_LOG true
 #define SIZE_LOG 250
 #define RESET_PREF false
+
+#define MP3_PLAYER false
 
 #define EXEC_BATCH1_PIN 27
 #define EXEC_BATCH2_PIN 14

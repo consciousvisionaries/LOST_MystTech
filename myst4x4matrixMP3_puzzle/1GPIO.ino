@@ -118,6 +118,7 @@ void handleAnalogInputPairsChange(int pinIndex) {
 }
 
 void handleAnalogInputPairsChange2(int i) {
+
   portENTER_CRITICAL(&mux);
   int count = pulseGPIOCount[i];
   bool updated = pulseGPIOUpdated[i];
@@ -135,43 +136,59 @@ void handleAnalogInputPairsChange2(int i) {
 }
 
 
+bool MATRIXIO_changed = false;
+unsigned long lastDebounceTime[NUM_DIGITAL_IOMATRIXPAIRS][NUM_DIGITAL_IOMATRIXPAIRS];  // Debounce timing
+
 
 void handleDigitalMatrixIOPairsChange() {
+  MATRIXIO_changed = false;
 
-  int rows = 0;
-  int columns = 0;
-
+  // Scan through each row
   for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
-    
-    // Set all rows to HIGH (disable them) before enabling the current row
-    for (int i = 0; i < 4; i++) {
+    // Set all rows HIGH to deactivate them
+    for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
       digitalWrite(digitalMatrixIOPins[0][i], HIGH);
     }
 
-    // Set the current row to LOW (enable it)
+    // Activate current row by setting it LOW
     digitalWrite(digitalMatrixIOPins[0][row], LOW);
 
-    // Read the column pins for the active row
-    for (int col = 0; col < 4; col++) {
-      buttonMatrixState[row][col] = digitalRead(digitalMatrixIOPins[1][col]) == LOW; // Button pressed when the column reads LOW
+    // Optional small delay to allow state to settle
+    delayMicroseconds(100); // Adjust as needed
+
+    // Read each column for the current row
+    for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
+      bool currentButtonState = digitalRead(digitalMatrixIOPins[1][col]) == LOW;  // Button is pressed when column reads LOW
+
+      // If the button state changes, update the matrix state
+      if (currentButtonState != buttonMatrixState[row][col]) {
+        buttonMatrixState[row][col] = currentButtonState;
+        MATRIXIO_changed = true;
+
+        Serial.print("Button Pressed: ");
+        Serial.println((col + 1 + (row * 4)));
+        
+      }
     }
   }
-
-
-
-
+  
 }
 
-// Method to print button states (for debugging purposes)
 void printMATRIXButtonStates() {
-  for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
-    for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
-      Serial.print(buttonMatrixState[row][col] ? "1" : "0"); // Print "1" for pressed, "0" for not pressed
-      Serial.print(" ");
+  if (MATRIXIO_changed) {
+
+    // Print the button states (pressed or released)
+    for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
+      for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
+        Serial.print(buttonMatrixState[row][col] ? "1" : "0");  // "1" for pressed, "0" for not pressed
+        Serial.print(" ");
+      }
+      Serial.println();
     }
     Serial.println();
   }
 }
+
 
 // Array to track used pins
 bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller
@@ -229,7 +246,8 @@ void loopGPIO() {
     handleAnalogInputPairsChange2(i);
   }
 
-  if (NUM_DIGITAL_IOMATRIXPAIRS >= 1) {
+  // Poll matrix io pins
+  if (NUM_DIGITAL_IOMATRIXPAIRS >= 2) {
     handleDigitalMatrixIOPairsChange();
     printMATRIXButtonStates();
   }
@@ -601,6 +619,14 @@ void initializeDigitalIOMatrix() {
       printSerial(String(digitalMatrixIOPins[r][i]));
       printSerialln(" set to INPUT_PULLUP.", 0);
     }
+  }
+
+
+  // Initialize row and column pins
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[0][i], OUTPUT);  // Row pins as outputs
+    pinMode(digitalMatrixIOPins[1][i], INPUT_PULLUP);  // Column pins as inputs with pull-ups
+    digitalWrite(digitalMatrixIOPins[0][i], HIGH);  // Set all rows to HIGH initially (inactive)
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_IOMATRIXPAIRS) + " Matrix I\O Initialized.", 1000);
 }

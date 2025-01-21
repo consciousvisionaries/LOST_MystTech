@@ -21,6 +21,8 @@ unsigned long loggedMessages = 0;
 String recordLog[SIZE_LOG] = {};
 String tmp = "";
 
+bool mp3PlayerInitialized = false;
+
 // Function to print a simple statement (appends to comment)
 void printSerial(String statement) {
 
@@ -105,6 +107,9 @@ void setup() {
   setupFASTLED_GPIO();
   printSerialln(".fled call completed", 1000);
 
+  setupMP3Player();
+  printSerialln(".mp3 call completed",1000);
+
   setupDashboard();
   printSerialln(".dashboard call completed", 1000);
 
@@ -140,10 +145,14 @@ void loop() {
   clientMQTTConnected();
   loopGPIO();
   loopFASTLED();
+  mp3Loop();
 
   if (String(NR_TYPE) == "3D_ROTARY_PULSE" && NUM_FLED_OUTPUTS >= 1) {
-    //funcRotaryDialPuzzle();
+    funcRotaryDialPuzzle();
+
+    
   } else if (String(NR_TYPE) == "4X4MATRIX") {
+    
     exec_4x4matrixMP3_puzzle();
   }
 }

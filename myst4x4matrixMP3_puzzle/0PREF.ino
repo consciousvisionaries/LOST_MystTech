@@ -59,7 +59,7 @@ const int analogInputPinsB[8] = {
 };
 
 const int digitalMatrixIOPins[2][4] = {{
-    GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI,
+    GPIO13_ADC2_CH4_HSPI_MOS1_TOUCH4,
     GPIO14_ADC2_CH6_HSPI_CLK_TOUCH6,
     GPIO27_ADC2_CH7_CAM_SIOC_TOUCH7,
     GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK
@@ -128,8 +128,7 @@ volatile bool pulseGPIOUpdated[8] = {false, false, false, false, false, false, f
 int FLEDCount[8] = {0, 0, 0, 0, 0, 0 , 0 , 0};
 int lastFLEDCount[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
 
-int buttonMatrixState[4][4] = {{false,false,false,false},{false,false,false,false},{false,false,false,false},{false,false,false,false}};
-int MATRIXOutputLEDStatus[4][4] = {{false,false,false,false},{false,false,false,false},{false,false,false,false},{false,false,false,false}};
+bool buttonMatrixState[NUM_DIGITAL_IOMATRIXPAIRS][NUM_DIGITAL_IOMATRIXPAIRS];  // Store button states
 
 void saveNodeSettings() {
   preferences.begin("node", false);

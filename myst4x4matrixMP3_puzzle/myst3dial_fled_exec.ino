@@ -3,7 +3,7 @@ void funcRotaryDialPuzzle() {
   if (gameOnFlag || restartFlag) {
 
     if (restartFlag && !gameOnFlag) {
-      generateFUNCRandomSolution();
+      generateFUNCRandomSolution((NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS), NUM_OF_SOLUTIONS);
       gameOnFlag = true;
       restartFlag = false;
       gameOverFlag = false;

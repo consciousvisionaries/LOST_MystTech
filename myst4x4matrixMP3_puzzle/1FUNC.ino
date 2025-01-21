@@ -21,18 +21,32 @@ void checkVersionWinScenario() {
   }
 }
 
-void generateFUNCRandomSolution() {
-    // Seed the random number generator
-    randomSeed(analogRead(0));
-    Serial.print("Solution: ");
-    // Populate the solution array with random values between 0 and 9
-    for (int i = 0; i < NUM_OF_SOLUTIONS; i++) {
-        solutionWin[i] = random(5, (NUM_FLED_ADDLEDS / NUM_OF_SOLUTIONS)); 
-        Serial.print(solutionWin[i]);
-        Serial.print(", ");
-    }
-    Serial.println("<end>");
+void generateFUNCRandomSolution(int numbersolutions, int rangemax) {
+
+  // Seed the random number generator
+  randomSeed(analogRead(0));
+  printSerial("Solution: ");
+
+  // Create an array to track which numbers have already been used
+  bool usedNumbers[numbersolutions] = {false};
+
+  // Populate the solution array with random values between 0 and (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS) without repetition
+  for (int i = 0; i < numbersolutions; i++) {
+    int randNum;
+    do {
+      randNum = random(0, rangemax);
+    } while (usedNumbers[randNum]); // Keep generating a new random number until we find one that hasn't been used
+
+    solutionWin[i] = randNum;
+    usedNumbers[randNum] = true;  // Mark this number as used
+
+    printSerial(String(solutionWin[i]));
+    printSerial(", ");
+  }
+
+  printSerialln("<end>", 0);
 }
+
 
 void checkForWin() {
     if (solutionFound) {
