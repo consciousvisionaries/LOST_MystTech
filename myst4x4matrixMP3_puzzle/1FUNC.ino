@@ -1,12 +1,29 @@
 
+void checkForWin() {
+    if (solutionFound) {
+        if (!solutionStable) {
+            solutionCheckStart = millis();
+            solutionStable = true;
+        }
 
+        if (millis() - solutionCheckStart >= 2000) {
+            executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
+            solutionStable = false;
+        }
+    } else {
+        solutionStable = false;
+    }
+}
 
 void checkVersionWinScenario() {
-
   
   if (solutionFound && solutionStable) {
     
-    sendMessageMQTTPayload("Activate relay 2 in Stage 1 (3 Dials MP3 Puzzle)", "Stage 1 Button 3 Pressed");
+    if (SOLUTION_TYPE == "MQTT") {
+      sendMessageMQTTPayload("Activate remote relay 2 > in " + String(NR_GROUP) + " (" + String(PUZZLE_NAME) + ")", String(SOLUTION_MQTT_MESSAGE));
+    } else if (SOLUTION_TYPE == "RELAY") {
+      executeFUNCBatchButton1_PIN(outputPinsB[0]);
+    }
 
     delay(50);
 
@@ -34,7 +51,7 @@ void generateFUNCRandomSolution(int numbersolutions, int rangemax) {
   for (int i = 0; i < numbersolutions; i++) {
     int randNum;
     do {
-      randNum = random(0, rangemax);
+      randNum = random(1, rangemax);
     } while (usedNumbers[randNum]); // Keep generating a new random number until we find one that hasn't been used
 
     solutionWin[i] = randNum;
@@ -45,23 +62,6 @@ void generateFUNCRandomSolution(int numbersolutions, int rangemax) {
   }
 
   printSerialln("<end>", 0);
-}
-
-
-void checkForWin() {
-    if (solutionFound) {
-        if (!solutionStable) {
-            solutionCheckStart = millis();
-            solutionStable = true;
-        }
-
-        if (millis() - solutionCheckStart >= 2000) {
-            executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
-            solutionStable = false;
-        }
-    } else {
-        solutionStable = false;
-    }
 }
 
 // Function to map pulse counts to the number of LEDs
@@ -75,10 +75,6 @@ int getCount(int maxcount, int analoginput) {
     // Return the mapped value to the number of LEDs based on the constrained pulse count
     return map(clampedpulseGPIOCount, 0, TOT_RANGE, 0, maxcount);
 }
-
-
-
-
 
 // Batch operation functions
 void executeFUNCBatchButton1_PIN(int pin) {

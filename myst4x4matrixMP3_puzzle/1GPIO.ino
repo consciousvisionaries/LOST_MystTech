@@ -136,9 +136,6 @@ void handleAnalogInputPairsChange2(int i) {
 }
 
 
-bool MATRIXIO_changed = false;
-unsigned long lastDebounceTime[NUM_DIGITAL_IOMATRIXPAIRS][NUM_DIGITAL_IOMATRIXPAIRS];  // Debounce timing
-
 
 void handleDigitalMatrixIOPairsChange() {
   MATRIXIO_changed = false;
@@ -160,14 +157,22 @@ void handleDigitalMatrixIOPairsChange() {
     for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
       bool currentButtonState = digitalRead(digitalMatrixIOPins[1][col]) == LOW;  // Button is pressed when column reads LOW
 
+
+      
       // If the button state changes, update the matrix state
-      if (currentButtonState != buttonMatrixState[row][col]) {
+      if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == LOW) {
         buttonMatrixState[row][col] = currentButtonState;
         MATRIXIO_changed = true;
+        lastMatrixButtonPressed = (col + 1 + (row * 4));
+       
+        printSerial("Button Pressed: ");
+        printSerialln(String(lastMatrixButtonPressed),50);
 
-        Serial.print("Button Pressed: ");
-        Serial.println((col + 1 + (row * 4)));
         
+      } else if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == HIGH) {
+                buttonMatrixState[row][col] = currentButtonState;
+                lastMatrixButtonPressed = 0;
+
       }
     }
   }
@@ -189,6 +194,12 @@ void printMATRIXButtonStates() {
   }
 }
 
+void resetMATRIXIO() {
+
+
+
+  
+}
 
 // Array to track used pins
 bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller

@@ -9,6 +9,7 @@ bool solutionFound = false;
 bool solutionStable = false;
 int solutionWin[8] = PUZZLE_SOLUTION;
 unsigned long solutionCheckStart = 0;
+int solutionSeq = 0;
 
 String styleHTML;
 String onloadHTML;
@@ -84,14 +85,14 @@ const int outputPinsA[8] = {
 };
 
 const int outputPinsB[8] = {
+  GPIO05_VSPI_CS_CAM_Y3_SDIO,
+  GPIO18_VSPI_CLK_CAM_Y4,
   GPIO15_ADC2_CH3_MTDO_TOUCH3_HSPI_CS,
   GPIO02_ADC2_CH2_BOOT_TOUCH2_LEDIO2,
   GPIO00_ADC2_CH1_BOOT_TOUCH1,
   GPIO04_ADC2_CH0_CAM_Y2_TOUCH0,
   GPIO16_U2RXD_WS2812_16,
-  GPIO17_U2TXD,
-  GPIO05_VSPI_CS_CAM_Y3_SDIO,
-  GPIO18_VSPI_CLK_CAM_Y4
+  GPIO17_U2TXD
 };
 
 const int outputFLEDPins[2] = {
@@ -129,6 +130,10 @@ int FLEDCount[8] = {0, 0, 0, 0, 0, 0 , 0 , 0};
 int lastFLEDCount[8] = { -1, -1, -1, -1, -1, -1, -1, -1};
 
 bool buttonMatrixState[NUM_DIGITAL_IOMATRIXPAIRS][NUM_DIGITAL_IOMATRIXPAIRS];  // Store button states
+
+bool MATRIXIO_changed = false;
+unsigned long lastMatrixDebounceTime[NUM_DIGITAL_IOMATRIXPAIRS][NUM_DIGITAL_IOMATRIXPAIRS];  // Debounce timing
+int lastMatrixButtonPressed = 0;
 
 void saveNodeSettings() {
   preferences.begin("node", false);

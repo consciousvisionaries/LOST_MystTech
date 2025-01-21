@@ -6,7 +6,6 @@
 #include <ESPmDNS.h>
 #include <string>
 
-
 #define FIRMWARE_VERSION "V1.x"
 
 WiFiClient espClient;
@@ -14,7 +13,6 @@ PubSubClient client(espClient);
 
 // Declare the StaticJsonDocument
 DynamicJsonDocument doc(MQTT_MAX_PACKET_SIZE);
-
 
 String comment = "";
 unsigned long loggedMessages = 0;
