@@ -1,4 +1,5 @@
 
+#include <Wire.h>
 
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
@@ -8,6 +9,10 @@ void update_pulseGPIOCount(int p, int v) {
   pulseGPIOCount[p] = v;
 }
 
+
+void putDigitalOutputState(int pin, bool state) {
+  digitalWrite(pin, state);
+}
 
 // Method to get the current state of a digital input pin
 bool getDigitalInputStateGPIO(int inputPin) {
@@ -136,7 +141,6 @@ void handleAnalogInputPairsChange2(int i) {
 }
 
 
-
 void handleDigitalMatrixIOPairsChange() {
   MATRIXIO_changed = false;
 
@@ -158,25 +162,23 @@ void handleDigitalMatrixIOPairsChange() {
       bool currentButtonState = digitalRead(digitalMatrixIOPins[1][col]) == LOW;  // Button is pressed when column reads LOW
 
 
-      
+
       // If the button state changes, update the matrix state
       if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == LOW) {
         buttonMatrixState[row][col] = currentButtonState;
         MATRIXIO_changed = true;
-        lastMatrixButtonPressed = (col + 1 + (row * 4));
-       
+        lastMatrixButtonPressed = (col + 1 + (row * NUM_DIGITAL_IOMATRIXPAIRS));
+
         printSerial("Button Pressed: ");
-        printSerialln(String(lastMatrixButtonPressed),50);
+        printSerialln(String(lastMatrixButtonPressed), 50);
 
-        
+
       } else if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == HIGH) {
-                buttonMatrixState[row][col] = currentButtonState;
-                lastMatrixButtonPressed = 0;
-
+        buttonMatrixState[row][col] = currentButtonState;
+        lastMatrixButtonPressed = 0;
       }
     }
   }
-  
 }
 
 void printMATRIXButtonStates() {
@@ -194,12 +196,6 @@ void printMATRIXButtonStates() {
   }
 }
 
-void resetMATRIXIO() {
-
-
-
-  
-}
 
 // Array to track used pins
 bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller
@@ -570,6 +566,40 @@ void initializeRXTXOutputs() {
   printSerialln("<end> ." + String(NUM_RXTX_PORTS) + " RXTX Ports Initialized!", 0);
 
 }
+
+void initializeI2CCom() {
+
+  for (int i = 0; i < NUM_I2C_PORTS; i++) {
+
+    const int SDA_PIN = I2C_Pins[i][1];
+    const int SCL_PIN = I2C_Pins[i][0];
+
+    //Serial1.end();  // Disable UART1
+    //Serial2.end();  // Disable UART2
+    delay(10);
+
+    // Print initialization message
+    printSerial("I2C initialized on SDA pin ");
+    printSerial(String(SDA_PIN));
+    printSerial(" and SCL pin ");
+    printSerialln(String(SCL_PIN), 0);
+
+    // Check for pin conflicts
+    usePin(SDA_PIN);  // Ensure SDA pin is not conflicting
+    usePin(SCL_PIN);  // Ensure SCL pin is not conflicting
+
+
+    // Initialize I2C communication with custom SDA and SCL pins
+    Wire.begin(SDA_PIN, SCL_PIN);
+    scannerLoop();
+
+
+  }
+
+  printSerialln("<end> I2C Communication Initialized.", 0);
+
+}
+
 
 void initializeDigitalIOMatrix() {
 

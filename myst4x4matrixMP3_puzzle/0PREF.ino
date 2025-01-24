@@ -67,8 +67,8 @@ const int digitalMatrixIOPins[2][4] = {{
   },
   {
     GPIO19_VSPI_MISO_CAM_Y5,
-    GPIO21_I2C_SDA,
-    GPIO22_I2C_SCL,
+    GPIO32_ADC1_CH4_TOUCH9,
+    GPIO33_ADC1_CH5_TOUCH8,
     GPIO23_VSPI_MOSI
   }
 };
@@ -103,6 +103,12 @@ const int outputFLEDPins[2] = {
 const int RXTX_Pins[2][2] = {
   {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD},
   {GPIO03_U0RXD_LED_RX, GPIO01_U0TXD_LED_TX}
+};
+
+const int I2C_Pins[2][2] = {
+ 
+  {GPIO22_I2C_SCL, GPIO21_I2C_SDA},
+  {GPIO25_ADC2_CH8_DAC1_I2S_LCK, GPIO33_ADC1_CH5_TOUCH8}
 };
 
 int ledCount[3] = {0, 0, 0};

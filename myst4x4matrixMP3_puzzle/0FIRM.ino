@@ -108,6 +108,9 @@ void setup() {
   setupMP3Player();
   printSerialln(".mp3 call completed",1000);
 
+  setupI2C();
+  printSerialln(".i2c call completed",1000);
+
   setupDashboard();
   printSerialln(".dashboard call completed", 1000);
 
