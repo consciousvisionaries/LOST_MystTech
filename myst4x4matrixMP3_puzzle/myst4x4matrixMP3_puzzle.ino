@@ -57,7 +57,7 @@ String buttonsHTMLTitle = "";
 // github
 const char* GITHUB_USER = "consciousvisionaries";
 const char* GITHUB_REPO = "LOST_MystTech";
-const char* GITHUB_BRANCH = "LOST_4XMATRIXMP3/myst4x4matrixMP3_puzzle";
+const char* GITHUB_BRANCH = "LOST_4X4MATRIXMP3/myst4x4matrixMP3_puzzle";
 const char* GITHUB_BIN = "myst4x4matrixMP3_puzzle.ino.esp32da.bin"; // esp32 wroom
 
 
