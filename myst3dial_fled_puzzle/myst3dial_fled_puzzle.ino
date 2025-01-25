@@ -47,8 +47,8 @@ String buttonsHTMLTitle = "";
 
 // github
 const char* GITHUB_USER = "consciousvisionaries";
-const char* GITHUB_REPO = "LOST_MystTech_Creations";
-const char* GITHUB_BRANCH = "myst3dial_fled_puzzle_v.1.5/myst3dial_fled_puzzle";
+const char* GITHUB_REPO = "LOST_MystTech";
+const char* GITHUB_BRANCH = "LOST_3DialMP3/myst3dial_fled_puzzle";
 const char* GITHUB_BIN = "myst3dial_fled_puzzle.ino.esp32da.bin"; // esp32 wroom
 
 
