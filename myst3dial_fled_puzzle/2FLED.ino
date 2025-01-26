@@ -32,6 +32,14 @@ void updateFLED_address(int address, String color) {
   }
 }
 
+void resetFLED() {
+  // Reset last LED counts
+            for (int i = 0; i < NUM_FLED_CHANNELS; i++) {
+                lastLedCount[i] = -1;
+                ledCount[i] = -1;
+            }
+}
+
 
 void updateFLED_clearAll() {
   fill_solid(leds, NUM_FLED_ADDLEDS, CRGB::Black);

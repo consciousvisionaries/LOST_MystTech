@@ -1,4 +1,5 @@
 
+#include <Wire.h>
 
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
@@ -8,6 +9,10 @@ void update_pulseGPIOCount(int p, int v) {
   pulseGPIOCount[p] = v;
 }
 
+
+void putDigitalOutputState(int pin, bool state) {
+  digitalWrite(pin, state);
+}
 
 // Method to get the current state of a digital input pin
 bool getDigitalInputStateGPIO(int inputPin) {
@@ -117,26 +122,159 @@ void handleAnalogInputPairsChange(int pinIndex) {
   portEXIT_CRITICAL(&mux);
 }
 
+void handleAnalogInputPairsChange2(int i) {
+
+  portENTER_CRITICAL(&mux);
+  int count = pulseGPIOCount[i];
+  bool updated = pulseGPIOUpdated[i];
+  pulseGPIOUpdated[i] = false;
+  portEXIT_CRITICAL(&mux);
+
+  count = constrain(count, 0, (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS));
+
+  if (updated) {
+    printSerial("Dial ");
+    printSerial(String(i + 1));
+    printSerial(" Count: ");
+    printSerialln(String(count), 0);
+  }
+}
+
+
+void handleDigitalMatrixIOPairsChange() {
+  MATRIXIO_changed = false;
+
+  // Scan through each row
+  for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
+    // Set all rows HIGH to deactivate them
+    for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+      digitalWrite(digitalMatrixIOPins[0][i], HIGH);
+    }
+
+    // Activate current row by setting it LOW
+    digitalWrite(digitalMatrixIOPins[0][row], LOW);
+
+    // Optional small delay to allow state to settle
+    delayMicroseconds(100); // Adjust as needed
+
+    // Read each column for the current row
+    for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
+      bool currentButtonState = digitalRead(digitalMatrixIOPins[1][col]) == LOW;  // Button is pressed when column reads LOW
+
+
+
+      // If the button state changes, update the matrix state
+      if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == LOW) {
+        buttonMatrixState[row][col] = currentButtonState;
+        MATRIXIO_changed = true;
+        lastMatrixButtonPressed = (col + 1 + (row * NUM_DIGITAL_IOMATRIXPAIRS));
+
+        printSerial("Button Pressed: ");
+        printSerialln(String(lastMatrixButtonPressed), 50);
+
+
+      } else if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == HIGH) {
+        buttonMatrixState[row][col] = currentButtonState;
+        lastMatrixButtonPressed = 0;
+      }
+    }
+  }
+}
+
+void printMATRIXButtonStates() {
+  if (MATRIXIO_changed) {
+
+    // Print the button states (pressed or released)
+    for (int row = 0; row < NUM_DIGITAL_IOMATRIXPAIRS; row++) {
+      for (int col = 0; col < NUM_DIGITAL_IOMATRIXPAIRS; col++) {
+        Serial.print(buttonMatrixState[row][col] ? "1" : "0");  // "1" for pressed, "0" for not pressed
+        Serial.print(" ");
+      }
+      Serial.println();
+    }
+    Serial.println();
+  }
+}
+
+
+// Array to track used pins
+bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller
+
+void usePin(int nPin) {
+
+  // Lambda function to check and track pin usage
+  auto usePinX = [&](int pin) {
+    if (usedPins[pin]) {
+      Serial.print("Error: Pin conflict detected on pin ");
+      Serial.println(pin);  // Print the pin number causing the conflict
+      return;  // Exit if a conflict is found
+    }
+    usedPins[pin] = true;
+    Serial.print("Pin ");
+    Serial.print(pin);
+    Serial.println(" is available => ");
+  };
+
+  usePinX(nPin);  // Call the lambda function to check and track the pin usage
+}
+
 // Method to set up GPIO pins (outputs, inputs, analog)
 void setupGPIO() {
   Serial.begin(115200);
 
-  // Array to track used pins
-  bool usedPins[50] = {false}; // Assuming a maximum of 50 GPIO pins on the microcontroller
+  initializeDigitalOutputsA();
+  initializeDigitalOutputsB();
+  initializeDigitalInputsA();
+  initializeDigitalInputsB();
+  initializeAnalogInputPairs();
+  initializeDigitalIOMatrix();
+  initializeFLEDOutputs();
+  initializeRXTXOutputs();
+  initializeMATRIXIOKeyboard();
+}
 
-  // Lambda function to check and track pin usage
-  auto usePin = [&](int pin) {
-    if (usedPins[pin]) {
-      printSerial("Error: Pin conflict detected on pin ");
-      printSerialln(String(pin), 60000);
-      return;  // Exit if a conflict is found
-    }
-    usedPins[pin] = true;
-    printSerial("Pin ");
-    printSerial(String(pin));
-    printSerial(" is available => ");
-  };
+// Main loop to handle GPIO activities
+void loopGPIO() {
 
+  // Poll and handle digital inputs (instead of relying on interrupts)
+  for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
+    handleDigitalInputChangeA(i);
+  }
+
+  // Poll and handle digital inputs (instead of relying on interrupts)
+  for (int i = 0; i < NUM_DIGITAL_INPUTSB; i++) {
+    handleDigitalInputChangeB(i);
+  }
+
+
+  // Poll and handle analog input changes
+  for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
+    handleAnalogInputPairsChange(i);
+    handleAnalogInputPairsChange2(i);
+  }
+
+  // Poll matrix io pins
+  if (NUM_DIGITAL_IOMATRIXPAIRS >= 2) {
+    handleDigitalMatrixIOPairsChange();
+    printMATRIXButtonStates();
+  }
+
+}
+
+void initializeMATRIXIOKeyboard() {
+  // Set row pins as outputs (to drive the rows)
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[0][i], OUTPUT);
+    digitalWrite(digitalMatrixIOPins[0][i], HIGH); // Set them high initially
+  }
+
+  // Set column pins as inputs (to read the column states)
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[1][i], INPUT_PULLUP); // Enable pull-up resistors on column pins
+  }
+}
+
+void initializeDigitalOutputsA() {
   // Initialize output pins (A pins)
   for (int i = 0; i < NUM_DIGITAL_OUTPUTSA; i++) {
     if (outputPinsA[i] == GPIO17_U2TXD) {
@@ -201,8 +339,9 @@ void setupGPIO() {
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_OUTPUTSA) + " A-Outputs Initialized.", 0);
   delay(1000);
+}
 
-
+void initializeDigitalOutputsB() {
   // Initialize output pins (B pins)
   for (int i = 0; i < NUM_DIGITAL_OUTPUTSB; i++) {
     if (outputPinsB[i] == GPIO17_U2TXD) {
@@ -268,6 +407,9 @@ void setupGPIO() {
   delay(1000);
 
 
+}
+
+void initializeDigitalInputsA() {
   // Initialize input pins (A pins)
   for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
     if (outputPinsA[i] == GPIO17_U2TXD) {
@@ -327,6 +469,9 @@ void setupGPIO() {
 
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_INPUTSA) + " A-Inputs Initialized.", 1000);
+}
+
+void initializeDigitalInputsB() {
 
   // Initialize input pins (B pins)
   for (int i = 0; i < NUM_DIGITAL_INPUTSB; i++) {
@@ -373,6 +518,10 @@ void setupGPIO() {
   printSerialln("<end> ." + String(NUM_DIGITAL_INPUTSB) + " B-Inputs Initialized.", 0);
   delay(1000);
 
+}
+
+void initializeAnalogInputPairs() {
+
   // Initialize analog input pairs (A and B)
   for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
     printSerial("Initializing analog input pair: ");
@@ -392,6 +541,11 @@ void setupGPIO() {
   }
   printSerialln("<end> ." + String(NUM_ANALOG_INPUTPAIRS) + " Analog Input Pairs Initialized!", 0);
 
+
+}
+
+void initializeFLEDOutputs() {
+
   // Initialize FLED addressable outputs (if applicable)
   for (int i = 0; i < NUM_FLED_OUTPUTS; i++) {
     usePin(outputFLEDPins[i]);
@@ -399,7 +553,9 @@ void setupGPIO() {
 
   }
   printSerialln("<end> ." + String(NUM_FLED_OUTPUTS) + " FLED Outputs Initialized!", 0);
+}
 
+void initializeRXTXOutputs() {
   // Initialize RXTX addressable outputs (if applicable)
   for (int i = 0; i < NUM_RXTX_PORTS; i++) {
     for (int t = 0; t < 2; t++) {
@@ -408,45 +564,110 @@ void setupGPIO() {
     }
   }
   printSerialln("<end> ." + String(NUM_RXTX_PORTS) + " RXTX Ports Initialized!", 0);
+
+}
+
+void initializeI2CCom() {
+
+  for (int i = 0; i < NUM_I2C_PORTS; i++) {
+
+    const int SDA_PIN = I2C_Pins[i][1];
+    const int SCL_PIN = I2C_Pins[i][0];
+
+    //Serial1.end();  // Disable UART1
+    //Serial2.end();  // Disable UART2
+    delay(10);
+
+    // Print initialization message
+    printSerial("I2C initialized on SDA pin ");
+    printSerial(String(SDA_PIN));
+    printSerial(" and SCL pin ");
+    printSerialln(String(SCL_PIN), 0);
+
+    // Check for pin conflicts
+    usePin(SDA_PIN);  // Ensure SDA pin is not conflicting
+    usePin(SCL_PIN);  // Ensure SCL pin is not conflicting
+
+
+    // Initialize I2C communication with custom SDA and SCL pins
+    Wire.begin(SDA_PIN, SCL_PIN);
+    scannerLoop();
+
+
+  }
+
+  printSerialln("<end> I2C Communication Initialized.", 0);
+
 }
 
 
+void initializeDigitalIOMatrix() {
 
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    for (int r = 0; r < 2; r++) {
+      if (digitalMatrixIOPins[r][i] == GPIO17_U2TXD) {
+        printSerial(" => Setting up GPIO17_U2TXD as an output...");
+        Serial2.end();  // Disable UART2
+        delay(10);  // Allow time for UART2 to fully disable
 
-// Main loop to handle GPIO activities
-void loopGPIO() {
+        pinMode(digitalMatrixIOPins[r][i], OUTPUT); // Set pin as OUTPUT
+        delay(10);  // Small delay to ensure pinMode change is stable
+        digitalWrite(digitalMatrixIOPins[r][i], LOW); // Initialize to LOW
+        delay(10);  // Small delay to stabilize the LOW state
 
-  // Poll and handle digital inputs (instead of relying on interrupts)
-  for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
-    handleDigitalInputChangeA(i);
-  }
+        printSerialln("GPIO17_U2TXD disabled and set as digital output.", 0);
 
-  // Poll and handle digital inputs (instead of relying on interrupts)
-  for (int i = 0; i < NUM_DIGITAL_INPUTSB; i++) {
-    handleDigitalInputChangeB(i);
-  }
+      } else if (digitalMatrixIOPins[r][i] == GPIO16_U2RXD_WS2812_16) {
+        printSerial(" => Setting up GPIO16_U2RXD_WS2812_16 as an output...");
+        Serial1.end();  // Disable UART1
+        delay(10);  // Allow time for UART1 to fully disable
 
+        pinMode(digitalMatrixIOPins[r][i], OUTPUT); // Set pin as OUTPUT
+        delay(10);  // Small delay to ensure pinMode change is stable
+        digitalWrite(digitalMatrixIOPins[r][i], LOW); // Initialize to LOW
+        delay(10);  // Small delay to stabilize the LOW state
 
-  // Poll and handle analog input changes
-  for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
-    handleAnalogInputPairsChange(i);
-  }
+        printSerialln("GPIO16_U2RXD_WS2812_16 disabled and set as digital output.", 0);
 
-  // Process pulse counts and updates for analog inputs
-  for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
-    portENTER_CRITICAL(&mux);
-    int count = pulseGPIOCount[i];
-    bool updated = pulseGPIOUpdated[i];
-    pulseGPIOUpdated[i] = false;
-    portEXIT_CRITICAL(&mux);
+      } else if (digitalMatrixIOPins[r][i] == GPIO01_U0TXD_LED_TX) {
+        printSerial(" => Setting up GPIO01_U0TXD_LED_TX as an output...");
+        Serial1.end();  // Disable UART1
+        delay(10);  // Allow time for UART1 to fully disable
 
-    count = constrain(count, 0, (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS));
+        pinMode(digitalMatrixIOPins[r][i], OUTPUT); // Set pin as OUTPUT
+        delay(10);  // Small delay to ensure pinMode change is stable
+        digitalWrite(digitalMatrixIOPins[r][i], LOW); // Initialize to LOW
+        delay(10);  // Small delay to stabilize the LOW state
 
-    if (updated) {
-      printSerial("Dial ");
-      printSerial(String(i + 1));
-      printSerial(" Count: ");
-      printSerialln(String(count), 0);
+        printSerialln("GPIO01_U0TXD_LED_TX disabled and set as digital output.", 0);
+
+      } else if (digitalMatrixIOPins[r][i] == GPIO03_U0RXD_LED_RX) {
+        printSerial(" => Setting up GPIO03_U0RXD_LED_RX as an output...");
+        Serial1.end();  // Disable UART1
+        delay(10);  // Allow time for UART1 to fully disable
+
+        pinMode(digitalMatrixIOPins[r][i], OUTPUT); // Set pin as OUTPUT
+        delay(10);  // Small delay to ensure pinMode change is stable
+        digitalWrite(digitalMatrixIOPins[r][i], LOW); // Initialize to LOW
+        delay(10);  // Small delay to stabilize the LOW state
+
+        printSerialln("GPIO03_U0RXD_LED_RX disabled and set as digital output.", 0);
+      }
+      usePin(digitalMatrixIOPins[r][i]); // Check for conflicts
+      pinMode(digitalMatrixIOPins[r][i], INPUT_PULLUP); // General configuration for other pins
+      delay(10);  // Small delay after setting pin mode
+      printSerial("I/O pin ");
+      printSerial(String(digitalMatrixIOPins[r][i]));
+      printSerialln(" set to INPUT_PULLUP.", 0);
     }
   }
+
+
+  // Initialize row and column pins
+  for (int i = 0; i < NUM_DIGITAL_IOMATRIXPAIRS; i++) {
+    pinMode(digitalMatrixIOPins[0][i], OUTPUT);  // Row pins as outputs
+    pinMode(digitalMatrixIOPins[1][i], INPUT_PULLUP);  // Column pins as inputs with pull-ups
+    digitalWrite(digitalMatrixIOPins[0][i], HIGH);  // Set all rows to HIGH initially (inactive)
+  }
+  printSerialln("<end> ." + String(NUM_DIGITAL_IOMATRIXPAIRS) + " Matrix I\O Initialized.", 1000);
 }
