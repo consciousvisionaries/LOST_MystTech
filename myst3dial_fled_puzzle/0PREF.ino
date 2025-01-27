@@ -17,7 +17,10 @@ String bodyDivHTML;
 String scriptHTML;
 String navButtonHTML;
 
-const int inputDigitalPinsA[0] = {};
+const int inputDigitalPinsA[2] = {
+  GPIO21_I2C_SDA,
+  GPIO22_I2C_SCL
+  };
 
 const int inputDigitalPinsB[8] = {
   GPIN36_ADC1_CH0_VP,
@@ -48,14 +51,14 @@ int inputAnalogTouchPins[10] = {
 
 const int analogInputPinsA[8] = {
   GPIN34_ADC1_CH6_CAM_Y8,
-  GPIO33_ADC1_CH5_TOUCH8,
+  GPIN35_ADC1_CH7_CAM_Y9,
   GPIO32_ADC1_CH4_TOUCH9, -1, -1, -1, -1, -1
 };
 
 const int analogInputPinsB[8] = {
-  GPIN36_ADC1_CH0_VP,
-  GPIO15_ADC2_CH3_MTDO_TOUCH3_HSPI_CS,
-  GPIO13_ADC2_CH4_HSPI_MOS1_TOUCH4, -1, -1, -1, -1, -1
+  GPIO33_ADC1_CH5_TOUCH8,
+  GPIO25_ADC2_CH8_DAC1_I2S_LCK,
+  GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK, -1, -1, -1, -1, -1
 };
 
 
