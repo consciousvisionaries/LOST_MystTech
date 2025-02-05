@@ -336,6 +336,11 @@ void initializeDigitalOutputsA() {
     printSerial(" set to ");
     printSerialln(outputPins_initStateA[i] ? "HIGH" : "LOW", 0);
 
+    if (i == 0) {
+      EXEC_BATCH1_PIN = outputPinsA[i];
+      EXEC_BATCH2_PIN = outputPinsA[i + 1];
+    }
+
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_OUTPUTSA) + " A-Outputs Initialized.", 0);
   delay(1000);
@@ -550,9 +555,10 @@ void initializeFLEDOutputs() {
   for (int i = 0; i < NUM_FLED_OUTPUTS; i++) {
     usePin(outputFLEDPins[i]);
     printSerialln("Initializing FLED addressable output at Pin " + String(outputFLEDPins[i]), 0);
-
+  
   }
   printSerialln("<end> ." + String(NUM_FLED_OUTPUTS) + " FLED Outputs Initialized!", 0);
+
 }
 
 void initializeRXTXOutputs() {

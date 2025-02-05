@@ -354,7 +354,6 @@ void mystTechBMP() {
 
 #define GPIO03_U0RXD_LED_RX 3
 #define GPIO01_U0TXD_LED_TX 1
-#define GPIO16_U2RXD_WS2812_16 16
 #define GPIO17_U2TXD 17
 #define GPIO23_VSPI_MOSI 23 // digital out 1 - win game
 #define GPIO22_I2C_SCL 22
@@ -362,7 +361,6 @@ void mystTechBMP() {
 #define GPIO19_VSPI_MISO_CAM_Y5 19 // digital out 2 - other
 #define GPIO18_VSPI_CLK_CAM_Y4 18
 #define GPIO13_ADC2_CH4_HSPI_MOS1_TOUCH4 13 // fled 2
-#define GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI 12 // fled
 #define GPIO02_ADC2_CH2_BOOT_TOUCH2_LEDIO2 2
 #define GPIO04_ADC2_CH0_CAM_Y2_TOUCH0 4 // dial 1
 #define GPIO05_VSPI_CS_CAM_Y3_SDIO 5 // dial 1

@@ -11,8 +11,14 @@
 #define SIZE_LOG 250
 #define RESET_PREF false
 
-#define EXEC_BATCH1_PIN 27
-#define EXEC_BATCH2_PIN 14
+
+
+int EXEC_BATCH1_PIN = 0;
+int EXEC_BATCH2_PIN = 0;
+
+#define GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI 12
+#define GPIO16_U2RXD_WS2812_16 16
+
 #define FLED_PIN1 12
 #define FLED_PIN2 16
 
@@ -41,6 +47,7 @@
 #define NUM_FLED_ADDLEDS2 10 // total for around the room.
 #define NUM_RXTX_PORTS 0
 #define NUM_I2C_PORTS 0
+
 
 String bodyInputTitle = "3 Poisons FLED Puzzle";
 String bodyOutputATitle = "Override";
@@ -89,7 +96,7 @@ struct MQTTSettings {
   String mqttPassword = "8bdehprsuz";
   String mqttBroker = "b37.mqtt.one";
   const char* mqttTopic = "9grsvy8373/lost";
-  String bup_mqttBroker[3] = {"b37.mqtt.one", "192.168.0.129", "broker.emqx.io"};
+  String bup_mqttBroker[3] = {"b37.mqtt.one", "127.0.0.1", "broker.emqx.io"};
   String bup_mqttUser[3] = {"9grsvy8373", "pro1polaris", ""};
   String bup_mqttPassword[3] = {"8bdehprsuz", "CVr819P*!", ""};
 

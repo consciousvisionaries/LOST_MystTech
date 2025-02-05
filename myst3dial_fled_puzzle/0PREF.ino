@@ -85,8 +85,8 @@ const int outputPinsB[8] = {
 };
 
 const int outputFLEDPins[2] = {
-  GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI,
-  GPIO16_U2RXD_WS2812_16
+  FLED_PIN1,
+  FLED_PIN2
 };
 
 const int RXTX_Pins[2][2] = {

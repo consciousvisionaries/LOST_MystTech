@@ -276,7 +276,11 @@ void send3D_ROTARY_PULSEMQTTData(int count1, int count2, int count3) {
 
   doc["mac"] = WiFi.macAddress();
   doc["puzzleName"] = PUZZLE_NAME;
-
+  doc["execbatch1pin"] = EXEC_BATCH1_PIN;
+  doc["execbatch2pin"] = EXEC_BATCH2_PIN;
+  
+  doc["FLEDpin1"] = FLED_PIN1;
+  doc["FLEDpin2"] = FLED_PIN2;
 
   doc["ls1"] = count1;
   doc["ls2"] = count2;
