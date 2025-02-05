@@ -1,6 +1,6 @@
 
 #include <Wire.h>
-
+bool MATRIXIO_changed = false;
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 

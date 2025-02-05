@@ -94,10 +94,14 @@ const int RXTX_Pins[2][2] = {
   {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD}
 };
 
-
 int ledCount[NUM_FLED_CHANNELS] = {0, 0, 0};
 int lastLedCount[NUM_FLED_CHANNELS] = {-1, -1, -1}; // Tracks the last LED count for each dial
 
+const int digitalMatrixIOPins[2][2] = {{0,0},{0,0}};
+bool buttonMatrixState[2][2] = {{false,false},{false,false}};
+int lastMatrixButtonPressed = 0;
+
+const int I2C_Pins[2][2] = {{0,0},{0,0}};
 
 static unsigned long lastExecutionTime = 0; // Tracks the last execution time
 

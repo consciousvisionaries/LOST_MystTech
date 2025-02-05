@@ -16,7 +16,7 @@
 #define FLED_PIN1 12
 #define FLED_PIN2 16
 
-#define PUZZLE_NAME "LOST 3 Dial Puzzle"
+#define PUZZLE_NAME "LOST 3 Poison Puzzle"
 #define DESIGNER_NAME "Beyond Belief"
 #define TECH_NAME "MYSTTECH Creations"
 #define MYSTTECH_MODEL "MYST3DIAL_FLED_PUZZLE"
@@ -25,10 +25,11 @@
 #define NR_TAB "LOST"
 #define NR_GROUP "Stage 1"
 #define NR_TYPE "3D_ROTARY_PULSE"
-#define PULSE_MAX_RANGE 20 // NR_TYPE "3D_ROTARY_PULSE"
+#define PULSE_MAX_RANGE 1500 // NR_TYPE "3D_ROTARY_PULSE"
 
 #define NUM_DIGITAL_INPUTSA 2
 #define NUM_DIGITAL_INPUTSB 0
+#define NUM_DIGITAL_IOMATRIXPAIRS 0
 #define NUM_ANALOG_INPUTPAIRS 3
 #define NUM_DIGITAL_OUTPUTSA 2
 #define NUM_DIGITAL_OUTPUT_ROWSA 1
@@ -36,11 +37,12 @@
 #define NUM_DIGITAL_OUTPUT_ROWSB 0
 #define NUM_FLED_OUTPUTS 2
 #define NUM_FLED_CHANNELS 3  // 30/3
-#define NUM_FLED_ADDLEDS 90 // Total number of LEDs (10 per dial)
+#define NUM_FLED_ADDLEDS (18 * 3) // Total number of LEDs (10 per dial)
 #define NUM_FLED_ADDLEDS2 10 // total for around the room.
 #define NUM_RXTX_PORTS 0
+#define NUM_I2C_PORTS 0
 
-String bodyInputTitle = "3 Dials MP3 Puzzle";
+String bodyInputTitle = "3 Poisons FLED Puzzle";
 String bodyOutputATitle = "Override";
 String bodyOutputBTitle = "";
 String buttonsHTMLTitle = "";
@@ -48,7 +50,7 @@ String buttonsHTMLTitle = "";
 // github
 const char* GITHUB_USER = "consciousvisionaries";
 const char* GITHUB_REPO = "LOST_MystTech";
-const char* GITHUB_BRANCH = "LOST_3DialMP3/myst3dial_fled_puzzle";
+const char* GITHUB_BRANCH = "LOST_3DialFLED/myst3dial_fled_puzzle";
 const char* GITHUB_BIN = "myst3dial_fled_puzzle.ino.esp32da.bin"; // esp32 wroom
 
 
