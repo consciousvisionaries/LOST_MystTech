@@ -50,15 +50,19 @@ int inputAnalogTouchPins[10] = {
 };
 
 const int analogInputPinsA[8] = {
-  GPIN34_ADC1_CH6_CAM_Y8,
-  GPIN35_ADC1_CH7_CAM_Y9,
-  GPIO32_ADC1_CH4_TOUCH9, -1, -1, -1, -1, -1
+  GPIO32_ADC1_CH4_TOUCH9, 
+  GPIO33_ADC1_CH5_TOUCH8,
+  GPIO25_ADC2_CH8_DAC1_I2S_LCK, -1, -1, -1, -1, -1
 };
 
 const int analogInputPinsB[8] = {
-  GPIO33_ADC1_CH5_TOUCH8,
-  GPIO25_ADC2_CH8_DAC1_I2S_LCK,
-  GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK, -1, -1, -1, -1, -1
+    GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK,
+
+    GPIO27_ADC2_CH7_CAM_SIOC_TOUCH7,        // relay output 2 (exec)
+  GPIO14_ADC2_CH6_HSPI_CLK_TOUCH6,
+
+  
+  -1, -1, -1, -1, -1
 };
 
 
