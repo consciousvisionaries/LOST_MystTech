@@ -114,31 +114,26 @@ void handleAnalogInputPairsChange(int pinIndex) {
   int stateB = digitalRead(analogInputPinsB[pinIndex]);
 
   portENTER_CRITICAL(&mux);
+  int count = pulseGPIOCount[pinIndex];
+  bool updated = pulseGPIOUpdated[pinIndex];
+
   if (stateA != lastStateAnalogInputs[pinIndex]) {
     pulseGPIOCount[pinIndex] += (stateA != stateB) ? 1 : -1;
     pulseGPIOUpdated[pinIndex] = true;
   }
   lastStateAnalogInputs[pinIndex] = stateA;
   portEXIT_CRITICAL(&mux);
-}
-
-void handleAnalogInputPairsChange2(int i) {
-
-  portENTER_CRITICAL(&mux);
-  int count = pulseGPIOCount[i];
-  bool updated = pulseGPIOUpdated[i];
-  pulseGPIOUpdated[i] = false;
-  portEXIT_CRITICAL(&mux);
 
   count = constrain(count, 0, (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS));
 
   if (updated) {
     printSerial("Dial ");
-    printSerial(String(i + 1));
+    printSerial(String(pinIndex + 1));
     printSerial(" Count: ");
     printSerialln(String(count), 0);
   }
 }
+
 
 
 void handleDigitalMatrixIOPairsChange() {
@@ -250,7 +245,6 @@ void loopGPIO() {
   // Poll and handle analog input changes
   for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
     handleAnalogInputPairsChange(i);
-    handleAnalogInputPairsChange2(i);
   }
 
   // Poll matrix io pins
