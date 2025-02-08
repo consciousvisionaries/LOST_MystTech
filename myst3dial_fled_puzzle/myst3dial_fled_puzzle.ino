@@ -23,7 +23,7 @@
 #define DNSLOCAL "MYST3DIAL_FLED_PUZZLE.LOCAL"
 
 #define NR_TAB "LOST"
-#define NR_GROUP "Stage 1"
+#define NR_GROUP "Stage 2"
 #define NR_TYPE "3D_ROTARY_PULSE"
 #define PULSE_MAX_RANGE 1500 // NR_TYPE "3D_ROTARY_PULSE"
 
