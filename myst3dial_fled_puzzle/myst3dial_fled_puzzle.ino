@@ -11,8 +11,8 @@
 #define SIZE_LOG 250
 #define RESET_PREF false
 
-#define EXEC_BATCH1_PIN 27
-#define EXEC_BATCH2_PIN 14
+#define EXEC_BATCH1_PIN 18
+#define EXEC_BATCH2_PIN 19
 #define FLED_PIN1 12
 #define FLED_PIN2 16
 
