@@ -1,6 +1,7 @@
 
 #include <Wire.h>
 bool MATRIXIO_changed = false;
+ bool pulseUpdated[3] = {false, false, false};
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -108,38 +109,63 @@ void handleDigitalInputChangeB(int pinIndex) {
 }
 
 
-// Method to handle analog input state changes
-void handleAnalogInputPairsChange(int pinIndex) {
-  int stateA = digitalRead(analogInputPinsA[pinIndex]);
-  int stateB = digitalRead(analogInputPinsB[pinIndex]);
+int interruptCounter = 0;
+
+// Interrupt service routines for each analog input pair
+void IRAM_ATTR handleInterruptA() {
+  interruptCounter++;
+  int stateA = digitalRead(analogInputPinsA[0]);
+  int stateB = digitalRead(analogInputPinsB[0]);
 
   portENTER_CRITICAL(&mux);
-  if (stateA != lastStateAnalogInputs[pinIndex]) {
-    pulseGPIOCount[pinIndex] += (stateA != stateB) ? 1 : -1;
-    pulseGPIOUpdated[pinIndex] = true;
+  if (stateA != lastStateAnalogInputs[0]) {
+    pulseCount[0] += (stateA != stateB) ? 1 : -1;
+    pulseUpdated[0] = true;
+ 
   }
-  lastStateAnalogInputs[pinIndex] = stateA;
+  lastStateAnalogInputs[0] = stateA;
+//   Serial.println(pulseCount[0]);
+ //   sendMessageMQTTPayload(String(pulseCount[0]), "Dial A");
   portEXIT_CRITICAL(&mux);
+    
 }
 
-void handleAnalogInputPairsChange2(int i) {
+void IRAM_ATTR handleInterruptB() {
+  interruptCounter++;
+  int stateA = digitalRead(analogInputPinsA[1]);
+  int stateB = digitalRead(analogInputPinsB[1]);
 
   portENTER_CRITICAL(&mux);
-  int count = pulseGPIOCount[i];
-  bool updated = pulseGPIOUpdated[i];
-  pulseGPIOUpdated[i] = false;
-  portEXIT_CRITICAL(&mux);
-
-  count = constrain(count, 0, (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS));
-
-  if (updated) {
-    printSerial("Dial ");
-    printSerial(String(i + 1));
-    printSerial(" Count: ");
-    printSerialln(String(count), 0);
+  if (stateA != lastStateAnalogInputs[1]) {
+    pulseCount[1] += (stateA != stateB) ? 1 : -1;
+    pulseUpdated[1] = true;
   }
+  lastStateAnalogInputs[1] = stateA;
+   //Serial.println(pulseCount[1]);
+  //sendMessageMQTTPayload(String(pulseCount[1]), "Dial B");
+  portEXIT_CRITICAL(&mux);
+ 
 }
 
+void IRAM_ATTR handleInterruptC() {
+  interruptCounter++;
+  int stateA = digitalRead(analogInputPinsA[2]);
+  int stateB = digitalRead(analogInputPinsB[2]);
+
+  portENTER_CRITICAL(&mux);
+  if (stateA != lastStateAnalogInputs[2]) {
+    pulseCount[2] += (stateA != stateB) ? 1 : -1;
+    pulseUpdated[2] = true;
+  
+
+
+  }
+  lastStateAnalogInputs[2] = stateA;
+  // Serial.println(pulseCount[2]);
+//    sendMessageMQTTPayload(String(pulseCount[2]), "Dial C");
+  portEXIT_CRITICAL(&mux);
+   
+}
 
 void handleDigitalMatrixIOPairsChange() {
   MATRIXIO_changed = false;
@@ -236,22 +262,13 @@ void setupGPIO() {
 // Main loop to handle GPIO activities
 void loopGPIO() {
 
-  // Poll and handle digital inputs (instead of relying on interrupts)
-  for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
-    handleDigitalInputChangeA(i);
+  static unsigned long lastPrint = 0;
+  if (lastPrint != interruptCounter) {
+    Serial.print("Interrupt A,B or C fired: ");
+    Serial.println(interruptCounter);
+    lastPrint = interruptCounter;
   }
 
-  // Poll and handle digital inputs (instead of relying on interrupts)
-  for (int i = 0; i < NUM_DIGITAL_INPUTSB; i++) {
-    handleDigitalInputChangeB(i);
-  }
-
-
-  // Poll and handle analog input changes
-  for (int i = 0; i < NUM_ANALOG_INPUTPAIRS; i++) {
-    handleAnalogInputPairsChange(i);
-    handleAnalogInputPairsChange2(i);
-  }
 
   // Poll matrix io pins
   if (NUM_DIGITAL_IOMATRIXPAIRS >= 2) {
@@ -347,6 +364,7 @@ void initializeDigitalOutputsA() {
 }
 
 void initializeDigitalOutputsB() {
+
   // Initialize output pins (B pins)
   for (int i = 0; i < NUM_DIGITAL_OUTPUTSB; i++) {
     if (outputPinsB[i] == GPIO17_U2TXD) {
@@ -415,6 +433,7 @@ void initializeDigitalOutputsB() {
 }
 
 void initializeDigitalInputsA() {
+
   // Initialize input pins (A pins)
   for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
     if (outputPinsA[i] == GPIO17_U2TXD) {
@@ -536,9 +555,9 @@ void initializeAnalogInputPairs() {
     usePin(analogInputPinsA[i]); // Check for conflicts
     usePin(analogInputPinsB[i]); // Check for conflicts
 
-    pinMode(analogInputPinsA[i], INPUT);  // Configure analog pin A as INPUT
+    pinMode(analogInputPinsA[i], INPUT_PULLUP);  // Configure analog pin A as INPUT
     delay(10);  // Small delay after setting pin mode
-    pinMode(analogInputPinsB[i], INPUT);  // Configure analog pin B as INPUT
+    pinMode(analogInputPinsB[i], INPUT_PULLUP);  // Configure analog pin B as INPUT
     delay(10);  // Small delay after setting pin mode
     printSerial("Analog input pair ");
     printSerial(String(i));
@@ -546,6 +565,11 @@ void initializeAnalogInputPairs() {
   }
   printSerialln("<end> ." + String(NUM_ANALOG_INPUTPAIRS) + " Analog Input Pairs Initialized!", 0);
 
+  attachInterrupt(digitalPinToInterrupt(analogInputPinsA[0]), handleInterruptA, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(analogInputPinsA[1]), handleInterruptB, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(analogInputPinsA[2]), handleInterruptC, CHANGE);
+
+  Serial.println(String(NUM_ANALOG_INPUTPAIRS) + " Analog Input Pairs Initialized.");
 
 }
 
@@ -555,7 +579,7 @@ void initializeFLEDOutputs() {
   for (int i = 0; i < NUM_FLED_OUTPUTS; i++) {
     usePin(outputFLEDPins[i]);
     printSerialln("Initializing FLED addressable output at Pin " + String(outputFLEDPins[i]), 0);
-  
+
   }
   printSerialln("<end> ." + String(NUM_FLED_OUTPUTS) + " FLED Outputs Initialized!", 0);
 

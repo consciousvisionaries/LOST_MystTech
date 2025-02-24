@@ -65,6 +65,59 @@ void printSerialln(String statement, int msdelay) {
   delay(msdelay);  // Delay for the specified milliseconds
 }
 
+void connectWiFi() {
+
+  
+  bool connected = false;
+  for (int i = 0; i < 2; i++) {
+    printSerialln("Attempting WIFI Loop #: " + String(i), 0);
+    if (i != -1) {
+      wifiSettings.ssid = wifiSettings.bup_ssid[i];
+      wifiSettings.password = wifiSettings.bup_password[i];
+      printSerialln("Trying backup credentials...", 0);
+    } else {
+      printSerialln("Trying stored credentials...", 0);
+    }
+
+    printSerialf("Connecting to WiFi: %s", wifiSettings.ssid.c_str());
+    printSerialf("WiFi Password: %s", wifiSettings.password.c_str());
+    WiFi.begin(wifiSettings.ssid.c_str(), wifiSettings.password.c_str());
+
+    unsigned long startAttemptTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+
+      printSerial(".");
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      printSerialln("WiFi connected.", 0);
+      printSerial("IP Address: ");
+      printSerialln(WiFi.localIP().toString(), 0);
+      wifiSettings.ipaddress = WiFi.localIP().toString();
+      connected = true;
+      break;
+    } else {
+      printSerialln("WiFi connection failed. Trying next network...", 500);
+
+    }
+  }
+
+  if (!connected) {
+    printSerialln("No Wi-Fi connection established. Starting Access Point...", 500);
+    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    printSerial("Access Point IP Address: ");
+    printSerialln(WiFi.softAPIP().toString(), 0);
+  }
+
+
+  // Set mDNS hostname
+  if (MDNS.begin(MYSTTECH_MODEL)) {
+    printSerialln("mDNS responder started: " + String(MYSTTECH_MODEL), 500);
+  } else {
+    printSerialln("Error starting mDNS", 500);
+  }
+}
+
 void setup() {
 
   Serial.begin(115200);
@@ -161,58 +214,7 @@ void delayESPTask(int d) {
   delay(d);
 }
 
-void connectWiFi() {
 
-  
-  bool connected = false;
-  for (int i = 0; i < 2; i++) {
-    printSerialln("Attempting WIFI Loop #: " + String(i), 0);
-    if (i != -1) {
-      wifiSettings.ssid = wifiSettings.bup_ssid[i];
-      wifiSettings.password = wifiSettings.bup_password[i];
-      printSerialln("Trying backup credentials...", 0);
-    } else {
-      printSerialln("Trying stored credentials...", 0);
-    }
-
-    printSerialf("Connecting to WiFi: %s", wifiSettings.ssid.c_str());
-    printSerialf("WiFi Password: %s", wifiSettings.password.c_str());
-    WiFi.begin(wifiSettings.ssid.c_str(), wifiSettings.password.c_str());
-
-    unsigned long startAttemptTime = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-
-      printSerial(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      printSerialln("WiFi connected.", 0);
-      printSerial("IP Address: ");
-      printSerialln(WiFi.localIP().toString(), 0);
-      wifiSettings.ipaddress = WiFi.localIP().toString();
-      connected = true;
-      break;
-    } else {
-      printSerialln("WiFi connection failed. Trying next network...", 500);
-
-    }
-  }
-
-  if (!connected) {
-    printSerialln("No Wi-Fi connection established. Starting Access Point...", 500);
-    WiFi.softAP(AP_SSID, AP_PASSWORD);
-    printSerial("Access Point IP Address: ");
-    printSerialln(WiFi.softAPIP().toString(), 0);
-  }
-
-
-  // Set mDNS hostname
-  if (MDNS.begin(MYSTTECH_MODEL)) {
-    printSerialln("mDNS responder started: " + String(MYSTTECH_MODEL), 500);
-  } else {
-    printSerialln("Error starting mDNS", 500);
-  }
-}
 
 unsigned long lastUpdateCheck = 0; // Global variable to track the last update check time
 const unsigned long updateInterval = 3600000; // 1 hour in milliseconds
