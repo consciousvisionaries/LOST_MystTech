@@ -492,11 +492,11 @@ void initializeDigitalInputsA() {
       printSerialln("GPIO03_U0RXD_LED_RX disabled and set as digital output.", 0);
     }
     usePin(inputDigitalPinsA[i]); // Check for conflicts
-    pinMode(inputDigitalPinsA[i], INPUT_PULLUP); // General configuration for other pins
+    pinMode(inputDigitalPinsA[i], INPUT); // General configuration for other pins
     delay(10);  // Small delay after setting pin mode
     printSerial("Input pin ");
     printSerial(String(inputDigitalPinsA[i]));
-    printSerialln(" set to INPUT_PULLUP.", 0);
+    printSerialln(" set to INPUT.", 0);
 
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_INPUTSA) + " A-Inputs Initialized.", 1000);
@@ -539,12 +539,11 @@ void initializeDigitalInputsB() {
       printSerialln("RX_UART1 disabled and set as digital input.", 0);
     }
     usePin(inputDigitalPinsB[i]); // Check for conflicts
-    pinMode(inputDigitalPinsB[i], INPUT_PULLUP); // General configuration for other pins
+    pinMode(inputDigitalPinsB[i], INPUT); // General configuration for other pins
     delay(10);  // Small delay after setting pin mode
     printSerial("Input pin ");
     printSerial(String(inputDigitalPinsB[i]));
-    printSerialln(" set to INPUT_PULLUP.", 0);
-
+    printSerialln(" set to INPUT.", 0);
   }
   printSerialln("<end> ." + String(NUM_DIGITAL_INPUTSB) + " B-Inputs Initialized.", 0);
   delay(1000);

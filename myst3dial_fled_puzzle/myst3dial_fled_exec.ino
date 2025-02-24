@@ -8,7 +8,18 @@ int getCount(int maxcount, int analoginputpin) {
   return map(clampedPulseCount, 0, PULSE_MAX_RANGE[analoginputpin], 0, maxcount);
 }
 
-
+void generateFUNCRandomSolution() {
+  // Seed the random number generator
+  randomSeed(analogRead(0));
+  Serial.print("Solution: ");
+  // Populate the solution array with random values between 0 and 9
+  for (int i = 0; i < NUM_OF_SOLUTIONS; i++) {
+    //solutionWin[i] = random(12, (NUM_FLED_ADDLEDS / NUM_OF_SOLUTIONS) - 1);
+    Serial.print(solutionWin[i]);
+    Serial.print(", ");
+  }
+  Serial.println("<end>");
+}
 
 
 void funcRotaryDialPuzzle() {
@@ -19,6 +30,7 @@ void funcRotaryDialPuzzle() {
   if (gameOnFlag || restartFlag) {
 
     if (restartFlag && !gameOnFlag) {
+      generateFUNCRandomSolution();
       gameOnFlag = true;
       restartFlag = false;
       gameOverFlag = false;
