@@ -18,7 +18,7 @@ void setupFASTLED_GPIO() {
     FastLED.show();
     Serial.println("<end> FAST LED 2 Initialized!");
   }
-  rainbowCycle(50);
+  twinkle(10,50);
 }
 
 void updateFLED_address(int address, String color) {

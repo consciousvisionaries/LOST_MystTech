@@ -1,7 +1,7 @@
 
 #include <Wire.h>
 bool MATRIXIO_changed = false;
- bool pulseUpdated[3] = {false, false, false};
+bool pulseUpdated[3] = {false, false, false};
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -71,9 +71,9 @@ void handleDigitalInputChangeA(int pinIndex) {
       // Trigger action only if the pin goes LOW (e.g., a button press)
       if (currentState == LOW) {
         if (pinIndex == 0) {
-          //executeFUNCBatchGPIOPin1();
+          executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
         } else if (pinIndex == 1) {
-          //executeFUNCBatchGPIOPin2();
+          executeFUNCBatchButton2();
         } else if (pinIndex == 2) {
           //executeFUNCBatchGPIOPin3();
         }
@@ -121,13 +121,13 @@ void IRAM_ATTR handleInterruptA() {
   if (stateA != lastStateAnalogInputs[0]) {
     pulseCount[0] += (stateA != stateB) ? 1 : -1;
     pulseUpdated[0] = true;
- 
+
   }
   lastStateAnalogInputs[0] = stateA;
-//   Serial.println(pulseCount[0]);
- //   sendMessageMQTTPayload(String(pulseCount[0]), "Dial A");
+  //   Serial.println(pulseCount[0]);
+  //   sendMessageMQTTPayload(String(pulseCount[0]), "Dial A");
   portEXIT_CRITICAL(&mux);
-    
+
 }
 
 void IRAM_ATTR handleInterruptB() {
@@ -141,10 +141,10 @@ void IRAM_ATTR handleInterruptB() {
     pulseUpdated[1] = true;
   }
   lastStateAnalogInputs[1] = stateA;
-   //Serial.println(pulseCount[1]);
+  //Serial.println(pulseCount[1]);
   //sendMessageMQTTPayload(String(pulseCount[1]), "Dial B");
   portEXIT_CRITICAL(&mux);
- 
+
 }
 
 void IRAM_ATTR handleInterruptC() {
@@ -156,15 +156,15 @@ void IRAM_ATTR handleInterruptC() {
   if (stateA != lastStateAnalogInputs[2]) {
     pulseCount[2] += (stateA != stateB) ? 1 : -1;
     pulseUpdated[2] = true;
-  
+
 
 
   }
   lastStateAnalogInputs[2] = stateA;
   // Serial.println(pulseCount[2]);
-//    sendMessageMQTTPayload(String(pulseCount[2]), "Dial C");
+  //    sendMessageMQTTPayload(String(pulseCount[2]), "Dial C");
   portEXIT_CRITICAL(&mux);
-   
+
 }
 
 void handleDigitalMatrixIOPairsChange() {
@@ -267,6 +267,13 @@ void loopGPIO() {
     Serial.print("Interrupt A,B or C fired: ");
     Serial.println(interruptCounter);
     lastPrint = interruptCounter;
+  }
+
+  //monitor digital inputs
+  if (NUM_DIGITAL_INPUTSA >= 1) {
+    for (int i = 0; i < NUM_DIGITAL_INPUTSA; i++) {
+      handleDigitalInputChangeA(i);
+    }
   }
 
 

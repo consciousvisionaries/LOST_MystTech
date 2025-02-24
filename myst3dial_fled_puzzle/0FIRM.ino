@@ -189,7 +189,7 @@ void loop() {
 
   loopFIRMWARE();
   checkForWin();
-  checkVersionWinScenario();
+  //checkVersionWinScenario();
   clientMQTTConnected();
   loopGPIO();
   loopFASTLED();

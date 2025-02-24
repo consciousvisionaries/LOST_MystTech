@@ -8,31 +8,22 @@ int getCount(int maxcount, int analoginputpin) {
   return map(clampedPulseCount, 0, PULSE_MAX_RANGE[analoginputpin], 0, maxcount);
 }
 
-void generateFUNCRandomSolution() {
-    // Seed the random number generator
-    randomSeed(analogRead(0));
-    Serial.print("Solution: ");
-    // Populate the solution array with random values between 0 and 9
-    for (int i = 0; i < NUM_OF_SOLUTIONS; i++) {
-      solutionWin[i] = random(12, (NUM_FLED_ADDLEDS / NUM_OF_SOLUTIONS) - 1);
-      Serial.print(solutionWin[i]);
-      Serial.print(", ");
-    }
-    Serial.println("<end>");
-}
+
 
 
 void funcRotaryDialPuzzle() {
 
+  int maxLEDCount = (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS);
+
+
   if (gameOnFlag || restartFlag) {
 
     if (restartFlag && !gameOnFlag) {
-      generateFUNCRandomSolution();
       gameOnFlag = true;
       restartFlag = false;
       gameOverFlag = false;
       solutionFound = false;
-
+      solutionStable = false;
 
       // Reset last LED counts
       for (int i = 0; i < NUM_FLED_CHANNELS; i++) {
@@ -47,7 +38,6 @@ void funcRotaryDialPuzzle() {
       Serial.println("Game is set!");
     }
 
-    int maxLEDCount = (NUM_FLED_ADDLEDS / NUM_FLED_CHANNELS);
 
     // Simulate fetching pulse counts
     for (int c = 0; c < NUM_FLED_CHANNELS; c++) {
@@ -80,21 +70,22 @@ void funcRotaryDialPuzzle() {
 
       // Update solution LEDs
       for (int i = 0; i < NUM_FLED_CHANNELS; i++) {
-        updateFLED_address(-solutionWin[i] + ((i + 1) * maxLEDCount), "orange");
+        updateFLED_address(-solutionWin[i] + ((i + 1) * maxLEDCount) - 1, "orange");
       }
 
       // Update LEDs for each dial dynamically based on NUM_FLED_CHANNELS
       for (int c = 0; c < NUM_FLED_CHANNELS; c++) {
         // Calculate the start and end LED indices for the current channel
-        int startIdx = (c + 1) * maxLEDCount - 1;
+        int startIdx = ((c + 1) * maxLEDCount) - 1;
         int endIdx = startIdx - ledCount[c];
-
+        int warningIdx = startIdx + 10;
         // Update LEDs for the current channel
         for (int i = startIdx; i > endIdx; i--) {
-          if (i < 12) {
-          updateFLED_address(i, globalSettings.colorsFLEDChannels[c]);  // Use the color for the current channel
+          if (i < warningIdx) {
+                      updateFLED_address(i, "white");  // Use the color for the current channel
+
           } else {
-            updateFLED_address(i, "red");
+          updateFLED_address(i, globalSettings.colorsFLEDChannels[c]);  // Use the color for the current channel
           }
         }
       }
@@ -115,6 +106,20 @@ void funcRotaryDialPuzzle() {
     // Set final LED counts to solution
     for (int i = 0; i < NUM_FLED_CHANNELS; i++) {
       ledCount[i] = solutionWin[i];
+    }
+
+    // Update LEDs for each dial dynamically based on NUM_FLED_CHANNELS
+    for (int c = 0; c < NUM_FLED_CHANNELS; c++) {
+      // Calculate the start and end LED indices for the current channel
+      int startIdx = (c + 1) * maxLEDCount - 1;
+      int endIdx = startIdx - ledCount[c];
+      int warningIdx = startIdx + 10;
+      // Update LEDs for the current channel
+      for (int i = startIdx; i > endIdx; i--) {
+
+        updateFLED_address(i, globalSettings.colorsFLEDChannels[c]);  // Use the color for the current channel
+
+      }
     }
 
     send3D_ROTARY_PULSEMQTTData(ledCount[0], ledCount[1], ledCount[2]);

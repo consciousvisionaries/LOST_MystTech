@@ -6,8 +6,6 @@ void checkVersionWinScenario() {
     
     sendMessageMQTTPayload("Activate relay 2 in Stage 1 (3 Dials MP3 Puzzle)", "Stage 1 Button 3 Pressed");
 
-    twinkle(500, 100);
-
     for (int i = 0; i < 3; i++) {
       update_pulseGPIOCount(i, 0);
     }
@@ -28,7 +26,6 @@ void checkForWin() {
 
         if (millis() - solutionCheckStart >= 2000) {
             executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
-            solutionStable = false;
         }
     } else {
         solutionStable = false;
@@ -37,17 +34,18 @@ void checkForWin() {
 
 // Batch operation functions
 void executeFUNCBatchButton1_PIN(int pin) {
+  
     Serial.println("Solution stable for 5 seconds. Executing GPIO1 batch 1 operation...");
     digitalWrite(pin, LOW);
     
-     twinkle(50, 100);
+     twinkle(500, 10);
 
     for (int i = 0; i < 3; i++) {
         pulseGPIOCount[i] = 0;
     }
     gameOnFlag = false;
     restartFlag = false;
-
+       
     digitalWrite(pin, HIGH);
     Serial.println("Batch 1 completed... Relay 1 trigger; forced 'Game Win'");
 }

@@ -4,7 +4,7 @@
 #define AP_SSID "LOST 3 Dial Puzzle"
 #define AP_PASSWORD "MystTech" // 'localhost:1880/admin'
 
-#define PUZZLE_SOLUTION { 1, 3, 5, 7, 9, 11, 13, 15 }
+#define PUZZLE_SOLUTION { 16, 12, 15 }
 #define NUM_OF_SOLUTIONS 3
 #define RECORD_LOG true
 #define SHOW_LOG true
@@ -31,7 +31,7 @@ int EXEC_BATCH2_PIN = 18;
 #define NR_TAB "LOST"
 #define NR_GROUP "Stage 1"
 #define NR_TYPE "3D_ROTARY_PULSE"
-int PULSE_MAX_RANGE[3] = { 15000, 15000, 15000 }; // NR_TYPE "3D_ROTARY_PULSE"
+int PULSE_MAX_RANGE[3] = { 20000, 20000, 2000 }; // NR_TYPE "3D_ROTARY_PULSE"
 
 #define NUM_DIGITAL_INPUTSA 2
 #define NUM_DIGITAL_INPUTSB 0
@@ -108,7 +108,7 @@ struct GlobalSettings {
 
   String inputNames[8] = { "Dial 1a", "Dial 1b", "Dial 2a", "Dial 2b", "Dial 3a", "Dial 3b", "not used", "not used" };
   String outputNames[8] = { "Dial 1a", "Dial 1b", "Dial 2a", "Dial 2b", "Dial 3a", "Dial 3b", "not used", "not used" };
-  String colorsFLEDChannels[3] = {"red", "green", "blue"};
+  String colorsFLEDChannels[3] = {"red ", "green", "blue"};
 
 };
 
