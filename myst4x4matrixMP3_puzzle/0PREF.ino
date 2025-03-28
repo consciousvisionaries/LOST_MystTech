@@ -68,7 +68,7 @@ const int digitalMatrixIOPins[2][4] = {{
   {
     GPIO19_VSPI_MISO_CAM_Y5,
     GPIO32_ADC1_CH4_TOUCH9,
-    GPIO33_ADC1_CH5_TOUCH8,
+    GPIN34_ADC1_CH6_CAM_Y8,
     GPIO23_VSPI_MOSI
   }
 };

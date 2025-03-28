@@ -72,13 +72,13 @@ void setup() {
   delay(1000);
 
   connectWiFi();
-  
+
   printSerialln(".wifi call completed", 1000);
 
-   if (!RESET_PREF) {
-    
+  if (!RESET_PREF) {
+
     loadAllSettings();
-    
+
     printSerialln(".credentials call completed", 1000);
   } else {
     saveAllSettings();
@@ -95,7 +95,7 @@ void setup() {
   } else {
     Serial.println("");
   }
- 
+
   connect_designatedMQTT();
   printSerialln(".mqtt call completed", 1000);
 
@@ -106,10 +106,10 @@ void setup() {
   printSerialln(".fled call completed", 1000);
 
   setupMP3Player();
-  printSerialln(".mp3 call completed",1000);
+  printSerialln(".mp3 call completed", 1000);
 
   setupI2C();
-  printSerialln(".i2c call completed",1000);
+  printSerialln(".i2c call completed", 1000);
 
   setupDashboard();
   printSerialln(".dashboard call completed", 1000);
@@ -151,9 +151,9 @@ void loop() {
   if (String(NR_TYPE) == "3D_ROTARY_PULSE" && NUM_FLED_OUTPUTS >= 1) {
     funcRotaryDialPuzzle();
 
-    
+
   } else if (String(NR_TYPE) == "4X4MATRIX") {
-    
+
     exec_4x4matrixMP3_puzzle();
   }
 }
@@ -173,10 +173,11 @@ void delayESPTask(int d) {
   delay(d);
 }
 
+bool connected = false;
+
 void connectWiFi() {
 
-  
-  bool connected = false;
+  connected = false;
   for (int i = 0; i < 2; i++) {
     printSerialln("Attempting WIFI Loop #: " + String(i), 0);
     if (i != -1) {

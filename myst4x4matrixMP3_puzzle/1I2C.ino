@@ -1,7 +1,7 @@
 #include <Adafruit_PWMServoDriver.h>;
 
 Adafruit_PWMServoDriver ledArray = Adafruit_PWMServoDriver(0x40);
-Adafruit_PWMServoDriver ledButtonArray = Adafruit_PWMServoDriver(0x40);
+Adafruit_PWMServoDriver ledButtonArray = Adafruit_PWMServoDriver(0x41);
 
 
 void setupI2C() {
@@ -115,28 +115,29 @@ void scannerLoop() {
 unsigned long previousMillis = 0;  // will store last time the LED was updated
 unsigned long ledDelay = 200;      // delay time for LED pattern
 int currentLED = 0;
-
 void loopPVM() {
   
     
   unsigned long currentMillis = millis();  // get the current time
+
+  int PWM[16] = {4,8,12,16,3,7,11,15,2,6,10,14,1,5,9,13};
 
   // Check if it's time to update the LED state
   if (currentMillis - previousMillis >= ledDelay) {
     previousMillis = currentMillis;  // save the last time LED was updated
 
     // Turn on the current LED at half brightness
+    ledButtonArray.setPWM(PWM[currentLED]-1, 0, 4095);  // 2048 is 50% brightness
     ledArray.setPWM(currentLED, 0, 4095);  // 2048 is 50% brightness
-    ledButtonArray.setPWM(currentLED, 0, 4095);  // 2048 is 50% brightness
 
     // Turn off the previous LED (this creates the "animation" effect)
     if (currentLED > 0) {
+      ledButtonArray.setPWM(PWM[currentLED -1]-1, 0, 0);  // Turn off the previous LED
       ledArray.setPWM(currentLED - 1, 0, 0);  // Turn off the previous LED
-      ledButtonArray.setPWM(currentLED - 1, 0, 0);  // Turn off the previous LED
 
     } else {
+      ledButtonArray.setPWM(PWM[15]-1, 0, 0);  // Turn off the last LED when cycling back to the start
       ledArray.setPWM(15, 0, 0);  // Turn off the last LED when cycling back to the start
-      ledButtonArray.setPWM(15, 0, 0);  // Turn off the last LED when cycling back to the start
 
     }
 

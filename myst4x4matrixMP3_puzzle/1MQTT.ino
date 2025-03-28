@@ -20,94 +20,105 @@ unsigned long sentTimes[MAX_PENDING_MESSAGES];  // Array to store the time messa
 bool messageConfirmed[MAX_PENDING_MESSAGES];     // Flags for confirming message reception
 
 void connect_designatedMQTT() {
-  startupDelay = 10000; // wait 10 seconds before checking validation loop
 
-  client.setServer(mqttSettings.mqttBroker.c_str(), MQTT_PORT);
-  client.setCallback(mqttCallback);  // Set MQTT callback function
+  if (connected) {
 
-  const char* mac = WiFi.macAddress().c_str();
-  printSerialln("MQTT Callback should be set", 0);
+    startupDelay = 10000; // wait 10 seconds before checking validation loop
 
-  unsigned long startAttemptTime = millis();
-  const unsigned long retryInterval = 5000;  // Retry interval (in milliseconds)
-  const unsigned long timeout = 10000;       // Timeout after 10 seconds
+    client.setServer(mqttSettings.mqttBroker.c_str(), MQTT_PORT);
+    client.setCallback(mqttCallback);  // Set MQTT callback function
 
-  String MQTT_CLIENT_ID = WiFi.macAddress();
+    const char* mac = WiFi.macAddress().c_str();
+    printSerialln("MQTT Callback should be set", 0);
 
-  while (!client.connected() && millis() - startAttemptTime < timeout) {
-    printSerial("Connecting to MQTT...");
-    if (client.connect(MQTT_CLIENT_ID.c_str(), mqttSettings.mqttUsername.c_str(), mqttSettings.mqttPassword.c_str())) {
-      printSerialln("Connected to MQTT Broker (Server): " + mqttSettings.mqttBroker, 0);
+    unsigned long startAttemptTime = millis();
+    const unsigned long retryInterval = 5000;  // Retry interval (in milliseconds)
+    const unsigned long timeout = 10000;       // Timeout after 10 seconds
 
-      if (client.subscribe(mqttSettings.mqttTopic)) {
-        printSerialln("Successfully subscribed to topic: " + String(mqttSettings.mqttTopic), 0);
-        isSubscribed = true;
+    String MQTT_CLIENT_ID = WiFi.macAddress();
+
+    while (!client.connected() && millis() - startAttemptTime < timeout) {
+      printSerial("Connecting to MQTT...");
+      if (client.connect(MQTT_CLIENT_ID.c_str(), mqttSettings.mqttUsername.c_str(), mqttSettings.mqttPassword.c_str())) {
+        printSerialln("Connected to MQTT Broker (Server): " + mqttSettings.mqttBroker, 0);
+
+        if (client.subscribe(mqttSettings.mqttTopic)) {
+          printSerialln("Successfully subscribed to topic: " + String(mqttSettings.mqttTopic), 0);
+          isSubscribed = true;
+        } else {
+          printSerialln("Failed to subscribe to topic.", 0);
+          isSubscribed = false;
+        }
       } else {
-        printSerialln("Failed to subscribe to topic.", 0);
+        printSerial("Failed (state=");
+        printSerial(String(client.state()));
         isSubscribed = false;
+        printSerialln("). Retrying in 5 seconds...", 0);
+        startupDelay = 10000; // reset delay
+        delay(retryInterval);
       }
-    } else {
-      printSerial("Failed (state=");
-      printSerial(String(client.state()));
-      isSubscribed = false;
-      printSerialln("). Retrying in 5 seconds...", 0);
-      startupDelay = 10000; // reset delay
-      delay(retryInterval);
     }
-  }
 
-  if (!client.connected()) {
-    printSerialln("Expected MQTT connection failed.", 0);
-    connect_bupMQTTBroker();
+    if (!client.connected()) {
+      printSerialln("Expected MQTT connection failed.", 0);
+      connect_bupMQTTBroker();
+    }
   }
 }
 
 
 void connect_bupMQTTBroker() {
 
-  /// need to update
-  client.setServer(mqttSettings.mqttBroker.c_str(), MQTT_PORT);
-  client.setCallback(mqttCallback);  // Set MQTT callback function
-  printSerialln("MQTT Callback should be set", 0);
+  if (connected) {
 
-  unsigned long startAttemptTime = millis();
-  const unsigned long retryInterval = 5000;  // Retry interval (in milliseconds)
-  const unsigned long timeout = 30000;       // Timeout after 30 seconds
+    /// need to update
+    client.setServer(mqttSettings.mqttBroker.c_str(), MQTT_PORT);
+    client.setCallback(mqttCallback);  // Set MQTT callback function
+    printSerialln("MQTT Callback should be set", 0);
 
-  String MQTT_CLIENT_ID = WiFi.macAddress();
+    unsigned long startAttemptTime = millis();
+    const unsigned long retryInterval = 5000;  // Retry interval (in milliseconds)
+    const unsigned long timeout = 30000;       // Timeout after 30 seconds
 
-  while (!client.connected() && millis() - startAttemptTime < timeout) {
-    printSerial("Connecting to MQTT...");
-    if (client.connect(MQTT_CLIENT_ID.c_str())) {
-      printSerialln("Connected to BROKER", 0);
+    String MQTT_CLIENT_ID = WiFi.macAddress();
 
-      if (client.subscribe(mqttSettings.mqttTopic)) {
-        printSerialln("Successfully subscribed to topic: " + String(mqttSettings.mqttTopic), 0);
-        isSubscribed = true;
+    while (!client.connected() && millis() - startAttemptTime < timeout) {
+      printSerial("Connecting to MQTT...");
+      if (client.connect(MQTT_CLIENT_ID.c_str())) {
+        printSerialln("Connected to BROKER", 0);
+
+        if (client.subscribe(mqttSettings.mqttTopic)) {
+          printSerialln("Successfully subscribed to topic: " + String(mqttSettings.mqttTopic), 0);
+          isSubscribed = true;
+        } else {
+          printSerialln("Failed to subscribe to topic.", 0);
+          isSubscribed = false;
+        }
+
       } else {
-        printSerialln("Failed to subscribe to topic.", 0);
-        isSubscribed = false;
+        printSerial("Failed (state=");
+        printSerial(String(client.state()));
+        printSerialln("). Retrying in 5 seconds...", 0);
+        startupDelay = 10000; // reset delay
+        delay(retryInterval);
       }
-
-    } else {
-      printSerial("Failed (state=");
-      printSerial(String(client.state()));
-      printSerialln("). Retrying in 5 seconds...", 0);
-      startupDelay = 10000; // reset delay
-      delay(retryInterval);
     }
-  }
 
-  if (!client.connected()) {
-    printSerialln("MQTT connection failed. Check credentials and server availability.", 0);
+    if (!client.connected()) {
+      printSerialln("MQTT connection failed. Check credentials and server availability.", 0);
+    }
   }
 }
 
 void clientMQTTConnected() {
-  client.loop();  // Ensure MQTT is being handled
-  startupDelay = 0; // startup over
-  checkMessageTimeout();  // Check for message timeouts
-  handleMQTTConnection();
+
+  if (connected) {
+
+    client.loop();  // Ensure MQTT is being handled
+    startupDelay = 0; // startup over
+    checkMessageTimeout();  // Check for message timeouts
+    handleMQTTConnection();
+  }
 }
 
 void checkMessageTimeout() {
@@ -143,6 +154,7 @@ boolean reconnect() {
 }
 
 void unsubscribeFromTopic() {
+  
   printSerialln("Unsubscribing from topic...", 0);
 
   if (client.unsubscribe(mqttSettings.mqttTopic)) {
@@ -153,6 +165,7 @@ void unsubscribeFromTopic() {
 }
 
 void handleMQTTConnection() {
+  
   // Check if the client is connected, if not attempt to reconnect
   if (!client.connected()) {
     if (millis() - lastReconnectAttempt > 5000) {  // Retry every 5 seconds
@@ -325,7 +338,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   for (int i = 0; i < MAX_PENDING_MESSAGES; i++) {
     if (sentMessages[i] == receivedMessage) {
       messageConfirmed[i] = true;  // Mark message as confirmed
-      
+
       printSerialln(" | Message server verified: " + receivedMessage, 0);
       sentMessages[i] = "";
       return;  // Exit once confirmed
@@ -350,16 +363,16 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     if (activity == "getFirmwareUpdate") {
       sendMessageMQTTPayload("Firmware Status Request Confirmed from: " + String(PUZZLE_NAME), "FirmwareStatus-->");
     } else if (activity == (String(NR_GROUP) + " Button Pressed")) {
-      
-      executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);      
 
-     
+      executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
+
+
     } else if (activity == (String(NR_GROUP) + " Button 2 Pressed")) {
       executeFUNCBatchButton2();
-    
+
     } else if (activity == (String(NR_GROUP) + " Button 3 Pressed")) {
-      
-     executeFUNCBatchButton3_PIN(EXEC_BATCH2_PIN);      
+
+      executeFUNCBatchButton3_PIN(EXEC_BATCH2_PIN);
 
     } else if (activity == "ADD ME") {
       if (nodeCount < MAX_NODES) {

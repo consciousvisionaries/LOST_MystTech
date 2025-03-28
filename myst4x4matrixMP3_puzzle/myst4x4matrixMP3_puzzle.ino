@@ -18,8 +18,8 @@
 #define MP3_FAIL_FILENO 17
 #define MP3_WIN_FILENO 18
 
-#define EXEC_BATCH1_PIN 27
-#define EXEC_BATCH2_PIN 14
+#define EXEC_BATCH1_PIN 5
+#define EXEC_BATCH2_PIN 18
 #define FLED_PIN1 12
 #define FLED_PIN2 16
 
@@ -47,7 +47,7 @@
 #define NUM_FLED_ADDLEDS 0 // Total number of LEDs (10 per dial)
 #define NUM_FLED_ADDLEDS2 0 // total for around the room.
 #define NUM_RXTX_PORTS 1
-#define NUM_I2C_PORTS 1
+#define NUM_I2C_PORTS 2
 
 String bodyInputTitle = PUZZLE_NAME;
 String bodyOutputATitle = "Override";
@@ -85,8 +85,8 @@ struct WiFiSettings {
   String password = "";
   String ipaddress = "";
   String mac = "";
-  String bup_ssid[2] = { "TELUSDE0875_2.4G", "Beyond Entertainment" };
-  String bup_password[2] = { "3X3K22832E", "Gary2019" };
+  String bup_ssid[2] = { "Paul's iPhone", "Beyond Entertainment" };
+  String bup_password[2] = { "pauladgj", "Gary2019" };
 };
 
 WiFiSettings wifiSettings;

@@ -6,7 +6,7 @@ void exec_4x4matrixMP3_puzzle() {
   if (gameOnFlag || restartFlag) {
 
     if (restartFlag && !gameOnFlag) {
-      generateFUNCRandomSolution(NUM_OF_SOLUTIONS, (NUM_DIGITAL_IOMATRIXPAIRS * NUM_DIGITAL_IOMATRIXPAIRS));
+      //generateFUNCRandomSolution(NUM_OF_SOLUTIONS, (NUM_DIGITAL_IOMATRIXPAIRS * NUM_DIGITAL_IOMATRIXPAIRS));
       gameOnFlag = true;
       restartFlag = false;
       gameOverFlag = false;
