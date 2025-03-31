@@ -1,4 +1,4 @@
-
+#define myst4x4matrixMP3_puzzle_UPDATED "March 31, 2025"
 
 // access point
 #define AP_SSID "LOST Matrix 4x4 MP3 Puzzle"
@@ -61,7 +61,7 @@ String buttonsHTMLTitle = "";
 // github
 const char* GITHUB_USER = "consciousvisionaries";
 const char* GITHUB_REPO = "LOST_MystTech";
-const char* GITHUB_BRANCH = "LOST_4X4MATRIXMP3/myst4x4matrixMP3_puzzle";
+const char* GITHUB_BRANCH = "main/myst4x4matrixMP3_puzzle";
 const char* GITHUB_BIN = "myst4x4matrixMP3_puzzle.ino.esp32da.bin"; // esp32 wroom
 
 
