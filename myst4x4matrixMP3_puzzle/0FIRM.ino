@@ -5,6 +5,11 @@
 #include <PubSubClient.h>
 #include <ESPmDNS.h>
 #include <string>
+#include <Adafruit_PWMServoDriver.h>;
+
+Adafruit_PWMServoDriver ledArray = Adafruit_PWMServoDriver(0x41);
+Adafruit_PWMServoDriver ledButtonArray = Adafruit_PWMServoDriver(0x40);
+
 
 #define FIRMWARE_VERSION "V1.x"
 

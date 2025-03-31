@@ -78,14 +78,14 @@ int getCount(int maxcount, int analoginput) {
 
 void executeFUNCBatchButton1_PIN(int pin) {
     Serial.println("Solution stable for 5 seconds. Executing GPIO1 batch 1 operation...");
-    digitalWrite(pin, LOW);
+    digitalWrite(pin, HIGH);
     delayESPTask(5000);
     for (int i = 0; i < 3; i++) {
         pulseGPIOCount[i] = 0;
     }
     gameOnFlag = false;
     restartFlag = false;
-    digitalWrite(pin, HIGH);
+    digitalWrite(pin, LOW);
     Serial.println("Batch 1 completed... Relay 1 trigger; forced 'Game Win'");
 }
 

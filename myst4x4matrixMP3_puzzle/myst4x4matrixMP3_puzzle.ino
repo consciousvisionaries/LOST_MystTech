@@ -5,6 +5,10 @@
 #define AP_PASSWORD "MystTech" // 'localhost:1880/admin'
 
 #define PUZZLE_SOLUTION { 1, 3, 5, 7, 9, 11, 13, 15 }
+
+int PWM[16] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+int PWM1[16] = {4, 8, 12, 16, 3, 7, 11, 15, 2, 6, 10, 14, 1, 5, 9, 13};
+
 #define PUZZLE_DISPLAY_SORTORDER { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 }//{ 16,11,10,9,5,6,7,8,4,3,2,1,13,12,14,15 }
 #define NUM_OF_SOLUTIONS 8
 #define SOLUTION_TYPE "RELAY" // or MQTT for remote trigger
@@ -47,7 +51,7 @@
 #define NUM_FLED_ADDLEDS 0 // Total number of LEDs (10 per dial)
 #define NUM_FLED_ADDLEDS2 0 // total for around the room.
 #define NUM_RXTX_PORTS 1
-#define NUM_I2C_PORTS 2
+#define NUM_I2C_PORTS 1
 
 String bodyInputTitle = PUZZLE_NAME;
 String bodyOutputATitle = "Override";

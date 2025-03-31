@@ -1,11 +1,7 @@
-#include <Adafruit_PWMServoDriver.h>;
-
-Adafruit_PWMServoDriver ledArray = Adafruit_PWMServoDriver(0x40);
-Adafruit_PWMServoDriver ledButtonArray = Adafruit_PWMServoDriver(0x41);
 
 
 void setupI2C() {
-  
+
   initializeI2CCom();
 
   setupPVM();
@@ -20,24 +16,24 @@ void loopI2C() {
 
 void setupPVM() {
 
-  printSerialln("Begin PVM...",0);
-  
-// Initialize the PCA9685 with default MODE1 and MODE2 settings
+  printSerialln("Begin PVM...", 0);
+
+  // Initialize the PCA9685 with default MODE1 and MODE2 settings
   if (!ledArray.begin()) {
     Serial.println("Error initializing LED Display PCA9685. Check your wiring.");
     scannerLoop();
     while (1);  // Halt execution if initialization fails
-  } else { 
-    printSerialln("Address: 0x40 now occupied",0);
+  } else {
+    printSerialln("Address: 0x40 now occupied", 0);
   }
   delay(1000);
-// Initialize the PCA9685 with default MODE1 and MODE2 settings
+  // Initialize the PCA9685 with default MODE1 and MODE2 settings
   if (!ledButtonArray.begin()) {
     Serial.println("Error initializing LED Button PCA9685. Check your wiring.");
     scannerLoop();
     //while (1);  // Halt execution if initialization fails
-  }  else { 
-    printSerialln("Address: 0x70 now occupied",0);
+  }  else {
+    printSerialln("Address: 0x70 now occupied", 0);
   }
   // Optionally configure mode settings (e.g., enable autoincrement and all-call address)
   // ledArray.configure(PCA9685_MODE1_AUTOINCR | PCA9685_MODE1_ALLCALL, PCA9685_MODE2_TOTEMPOLE);
@@ -48,7 +44,7 @@ void setupPVM() {
   Serial.println("PCA9685 initialization complete.");
 }
 
-  
+
 // --------------------------------------
 // i2c_scanner
 //
@@ -116,28 +112,24 @@ unsigned long previousMillis = 0;  // will store last time the LED was updated
 unsigned long ledDelay = 200;      // delay time for LED pattern
 int currentLED = 0;
 void loopPVM() {
-  
-    
+
+
   unsigned long currentMillis = millis();  // get the current time
 
-  int PWM[16] = {4,8,12,16,3,7,11,15,2,6,10,14,1,5,9,13};
 
   // Check if it's time to update the LED state
   if (currentMillis - previousMillis >= ledDelay) {
     previousMillis = currentMillis;  // save the last time LED was updated
 
     // Turn on the current LED at half brightness
-    ledButtonArray.setPWM(PWM[currentLED]-1, 0, 4095);  // 2048 is 50% brightness
-    ledArray.setPWM(currentLED, 0, 4095);  // 2048 is 50% brightness
+    ledArray.setPWM(PWM1[currentLED] - 1, 0, 4095); // 2048 is 50% brightness
 
     // Turn off the previous LED (this creates the "animation" effect)
     if (currentLED > 0) {
-      ledButtonArray.setPWM(PWM[currentLED -1]-1, 0, 0);  // Turn off the previous LED
-      ledArray.setPWM(currentLED - 1, 0, 0);  // Turn off the previous LED
+      ledArray.setPWM(PWM1[currentLED - 1] - 1, 0, 0); // Turn off the previous LED
 
     } else {
-      ledButtonArray.setPWM(PWM[15]-1, 0, 0);  // Turn off the last LED when cycling back to the start
-      ledArray.setPWM(15, 0, 0);  // Turn off the last LED when cycling back to the start
+      ledArray.setPWM(PWM1[15] - 1, 0, 0); // Turn off the last LED when cycling back to the start
 
     }
 

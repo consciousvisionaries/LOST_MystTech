@@ -167,7 +167,10 @@ void handleDigitalMatrixIOPairsChange() {
       if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == LOW) {
         buttonMatrixState[row][col] = currentButtonState;
         MATRIXIO_changed = true;
+        ledButtonArray.setPWM(PWM1[lastMatrixButtonPressed -1] - 1, 0, 0); // 2048 is 50% brightness
+
         lastMatrixButtonPressed = (col + 1 + (row * NUM_DIGITAL_IOMATRIXPAIRS));
+        ledButtonArray.setPWM(PWM1[lastMatrixButtonPressed-1] - 1 , 0, 4095); // 2048 is 50% brightness
 
         printSerial("Button Pressed: ");
         printSerialln(String(lastMatrixButtonPressed), 50);
@@ -175,7 +178,6 @@ void handleDigitalMatrixIOPairsChange() {
 
       } else if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == HIGH) {
         buttonMatrixState[row][col] = currentButtonState;
-        lastMatrixButtonPressed = 0;
       }
     }
   }
@@ -280,55 +282,40 @@ void initializeDigitalOutputsA() {
     if (outputPinsA[i] == GPIO17_U2TXD) {
       printSerial(" => Setting up GPIO17_U2TXD as an output...");
       Serial2.end();  // Disable UART2
-      delay(10);  // Allow time for UART2 to fully disable
-
-      pinMode(outputPinsA[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsA[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+     
 
       printSerialln("GPIO17_U2TXD disabled and set as digital output.", 0);
 
     } else if (outputPinsA[i] == GPIO16_U2RXD_WS2812_16) {
       printSerial(" => Setting up GPIO16_U2RXD_WS2812_16 as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsA[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsA[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+     
+     
 
       printSerialln("GPIO16_U2RXD_WS2812_16 disabled and set as digital output.", 0);
 
     } else if (outputPinsA[i] == GPIO01_U0TXD_LED_TX) {
       printSerial(" => Setting up GPIO01_U0TXD_LED_TX as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsA[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsA[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+     
 
       printSerialln("GPIO01_U0TXD_LED_TX disabled and set as digital output.", 0);
 
     } else if (outputPinsA[i] == GPIO03_U0RXD_LED_RX) {
       printSerial(" => Setting up GPIO03_U0RXD_LED_RX as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsA[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsA[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+   
+      
 
       printSerialln("GPIO03_U0RXD_LED_RX disabled and set as digital output.", 0);
     }
 
     usePin(outputPinsA[i]);  // Check for conflicts
+    #define RELAY_PIN outputPinsA[i]
+    gpio_reset_pin((gpio_num_t)RELAY_PIN);  // Ensure a clean start
+    gpio_set_direction((gpio_num_t)RELAY_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)RELAY_PIN, 1);  // Ensure it's HIGH before enabling
     pinMode(outputPinsA[i], OUTPUT);
-    delay(10);  // Allow time for pinMode to take effect
     digitalWrite(outputPinsA[i], outputPins_initStateA[i] ? HIGH : LOW); // Initialize with state array
     delay(10);  // Small delay after setting the output state
     printSerial("Output pin ");
@@ -347,52 +334,36 @@ void initializeDigitalOutputsB() {
     if (outputPinsB[i] == GPIO17_U2TXD) {
       printSerial(" => Setting up GPIO17_U2TXD as an output...");
       Serial2.end();  // Disable UART2
-      delay(10);  // Allow time for UART2 to fully disable
-
-      pinMode(outputPinsB[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsB[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+    
+   
 
       printSerialln("GPIO17_U2TXD disabled and set as digital output.", 0);
 
     } else if (outputPinsB[i] == GPIO16_U2RXD_WS2812_16) {
       printSerial(" => Setting up GPIO16_U2RXD_WS2812_16 as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsB[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsB[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
+      
 
       printSerialln("GPIO16_U2RXD_WS2812_16 disabled and set as digital output.", 0);
 
     } else if (outputPinsB[i] == GPIO01_U0TXD_LED_TX) {
       printSerial(" => Setting up GPIO01_U0TXD_LED_TX as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsB[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsB[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
 
       printSerialln("GPIO01_U0TXD_LED_TX disabled and set as digital output.", 0);
 
     } else if (outputPinsB[i] == GPIO03_U0RXD_LED_RX) {
       printSerial(" => Setting up GPIO03_U0RXD_LED_RX as an output...");
       Serial1.end();  // Disable UART1
-      delay(10);  // Allow time for UART1 to fully disable
-
-      pinMode(outputPinsB[i], OUTPUT); // Set pin as OUTPUT
-      delay(10);  // Small delay to ensure pinMode change is stable
-      digitalWrite(outputPinsB[i], LOW); // Initialize to LOW
-      delay(10);  // Small delay to stabilize the LOW state
-
+    
+  
       printSerialln("GPIO03_U0RXD_LED_RX disabled and set as digital output.", 0);
     }
     usePin(outputPinsB[i]); // Check for conflicts
+    #define RELAY_PIN outputPinsA[i]
+    gpio_reset_pin((gpio_num_t)RELAY_PIN);  // Ensure a clean start
+    gpio_set_direction((gpio_num_t)RELAY_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)RELAY_PIN, 1);  // Ensure it's HIGH before enabling
     pinMode(outputPinsB[i], OUTPUT);
     delay(10);  // Allow time for pinMode to take effect
     digitalWrite(outputPinsB[i], outputPins_initStateB[i] ? HIGH : LOW); // Initialize with state array

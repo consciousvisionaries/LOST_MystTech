@@ -68,7 +68,7 @@ const int digitalMatrixIOPins[2][4] = {{
   {
     GPIO19_VSPI_MISO_CAM_Y5,
     GPIO32_ADC1_CH4_TOUCH9,
-    GPIN34_ADC1_CH6_CAM_Y8,
+    GPIO33_ADC1_CH5_TOUCH8,
     GPIO23_VSPI_MOSI
   }
 };
@@ -117,7 +117,7 @@ int lastLedCount[3] = { -1, -1, -1}; // Tracks the last LED count for each dial
 static unsigned long lastExecutionTime = 0; // Tracks the last execution time
 
 int outputPins_initStateA[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
-int outputPins_initStateB[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
+int outputPins_initStateB[8] = {LOW, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 
 volatile int lastStateAnalogInputs[8] = {HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH, HIGH};
 
