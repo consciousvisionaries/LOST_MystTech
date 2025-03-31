@@ -65,6 +65,59 @@ void printSerialln(String statement, int msdelay) {
   delay(msdelay);  // Delay for the specified milliseconds
 }
 
+void connectWiFi() {
+
+  
+  bool connected = false;
+  for (int i = 0; i < 2; i++) {
+    printSerialln("Attempting WIFI Loop #: " + String(i), 0);
+    if (i != -1) {
+      wifiSettings.ssid = wifiSettings.bup_ssid[i];
+      wifiSettings.password = wifiSettings.bup_password[i];
+      printSerialln("Trying backup credentials...", 0);
+    } else {
+      printSerialln("Trying stored credentials...", 0);
+    }
+
+    printSerialf("Connecting to WiFi: %s", wifiSettings.ssid.c_str());
+    printSerialf("WiFi Password: %s", wifiSettings.password.c_str());
+    WiFi.begin(wifiSettings.ssid.c_str(), wifiSettings.password.c_str());
+
+    unsigned long startAttemptTime = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+
+      printSerial(".");
+    }
+
+    if (WiFi.status() == WL_CONNECTED) {
+      printSerialln("WiFi connected.", 0);
+      printSerial("IP Address: ");
+      printSerialln(WiFi.localIP().toString(), 0);
+      wifiSettings.ipaddress = WiFi.localIP().toString();
+      connected = true;
+      break;
+    } else {
+      printSerialln("WiFi connection failed. Trying next network...", 500);
+
+    }
+  }
+
+  if (!connected) {
+    printSerialln("No Wi-Fi connection established. Starting Access Point...", 500);
+    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    printSerial("Access Point IP Address: ");
+    printSerialln(WiFi.softAPIP().toString(), 0);
+  }
+
+
+  // Set mDNS hostname
+  if (MDNS.begin(MYSTTECH_MODEL)) {
+    printSerialln("mDNS responder started: " + String(MYSTTECH_MODEL), 500);
+  } else {
+    printSerialln("Error starting mDNS", 500);
+  }
+}
+
 void setup() {
 
   Serial.begin(115200);
@@ -136,7 +189,7 @@ void loop() {
 
   loopFIRMWARE();
   checkForWin();
-  checkVersionWinScenario();
+  //checkVersionWinScenario();
   clientMQTTConnected();
   loopGPIO();
   loopFASTLED();
@@ -161,58 +214,7 @@ void delayESPTask(int d) {
   delay(d);
 }
 
-void connectWiFi() {
 
-  
-  bool connected = false;
-  for (int i = 0; i < 2; i++) {
-    printSerialln("Attempting WIFI Loop #: " + String(i), 0);
-    if (i != -1) {
-      wifiSettings.ssid = wifiSettings.bup_ssid[i];
-      wifiSettings.password = wifiSettings.bup_password[i];
-      printSerialln("Trying backup credentials...", 0);
-    } else {
-      printSerialln("Trying stored credentials...", 0);
-    }
-
-    printSerialf("Connecting to WiFi: %s", wifiSettings.ssid.c_str());
-    printSerialf("WiFi Password: %s", wifiSettings.password.c_str());
-    WiFi.begin(wifiSettings.ssid.c_str(), wifiSettings.password.c_str());
-
-    unsigned long startAttemptTime = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-
-      printSerial(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-      printSerialln("WiFi connected.", 0);
-      printSerial("IP Address: ");
-      printSerialln(WiFi.localIP().toString(), 0);
-      wifiSettings.ipaddress = WiFi.localIP().toString();
-      connected = true;
-      break;
-    } else {
-      printSerialln("WiFi connection failed. Trying next network...", 500);
-
-    }
-  }
-
-  if (!connected) {
-    printSerialln("No Wi-Fi connection established. Starting Access Point...", 500);
-    WiFi.softAP(AP_SSID, AP_PASSWORD);
-    printSerial("Access Point IP Address: ");
-    printSerialln(WiFi.softAPIP().toString(), 0);
-  }
-
-
-  // Set mDNS hostname
-  if (MDNS.begin(MYSTTECH_MODEL)) {
-    printSerialln("mDNS responder started: " + String(MYSTTECH_MODEL), 500);
-  } else {
-    printSerialln("Error starting mDNS", 500);
-  }
-}
 
 unsigned long lastUpdateCheck = 0; // Global variable to track the last update check time
 const unsigned long updateInterval = 3600000; // 1 hour in milliseconds
@@ -354,7 +356,6 @@ void mystTechBMP() {
 
 #define GPIO03_U0RXD_LED_RX 3
 #define GPIO01_U0TXD_LED_TX 1
-#define GPIO16_U2RXD_WS2812_16 16
 #define GPIO17_U2TXD 17
 #define GPIO23_VSPI_MOSI 23 // digital out 1 - win game
 #define GPIO22_I2C_SCL 22
@@ -362,7 +363,6 @@ void mystTechBMP() {
 #define GPIO19_VSPI_MISO_CAM_Y5 19 // digital out 2 - other
 #define GPIO18_VSPI_CLK_CAM_Y4 18
 #define GPIO13_ADC2_CH4_HSPI_MOS1_TOUCH4 13 // fled 2
-#define GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI 12 // fled
 #define GPIO02_ADC2_CH2_BOOT_TOUCH2_LEDIO2 2
 #define GPIO04_ADC2_CH0_CAM_Y2_TOUCH0 4 // dial 1
 #define GPIO05_VSPI_CS_CAM_Y3_SDIO 5 // dial 1

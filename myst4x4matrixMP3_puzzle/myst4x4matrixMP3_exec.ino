@@ -24,7 +24,7 @@ void exec_4x4matrixMP3_puzzle() {
       printSerial("Solution position: ");
       printSerialln(String(solutionSeq), 0);
       playMP3(lastMatrixButtonPressed);
-      lastMatrixButtonPressed = 0;
+      lastMatrixButtonPressed = -lastMatrixButtonPressed;
 
       if (solutionSeq == NUM_OF_SOLUTIONS) {
         solutionFound = true;
@@ -35,7 +35,7 @@ void exec_4x4matrixMP3_puzzle() {
     } else if (lastMatrixButtonPressed > 0 ) {
       printSerialln("Wrong button pressed! Restart sequence.", 0);
       solutionSeq = 0;
-      lastMatrixButtonPressed = 0;
+      lastMatrixButtonPressed = -lastMatrixButtonPressed;
       playMP3(MP3_FAIL_FILENO);
 
     }

@@ -1,4 +1,4 @@
-*!
+
 
 // access point
 #define AP_SSID "LOST 3 Dial Puzzle"

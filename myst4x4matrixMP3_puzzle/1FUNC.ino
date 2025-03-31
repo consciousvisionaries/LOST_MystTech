@@ -78,6 +78,7 @@ int getCount(int maxcount, int analoginput) {
 
 void executeFUNCBatchButton1_PIN(int pin) {
     Serial.println("Solution stable for 5 seconds. Executing GPIO1 batch 1 operation...");
+    
     digitalWrite(pin, HIGH);
     delayESPTask(5000);
     for (int i = 0; i < 3; i++) {

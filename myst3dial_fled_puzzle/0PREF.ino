@@ -20,7 +20,7 @@ String navButtonHTML;
 const int inputDigitalPinsA[2] = {
   GPIO21_I2C_SDA,
   GPIO22_I2C_SCL
-  };
+};
 
 const int inputDigitalPinsB[8] = {
   GPIN36_ADC1_CH0_VP,
@@ -50,27 +50,24 @@ int inputAnalogTouchPins[10] = {
 };
 
 const int analogInputPinsA[8] = {
-  GPIN34_ADC1_CH6_CAM_Y8,
-  GPIN35_ADC1_CH7_CAM_Y9,
-  GPIO32_ADC1_CH4_TOUCH9, -1, -1, -1, -1, -1
+  GPIO14_ADC2_CH6_HSPI_CLK_TOUCH6,
+  GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK,
+  GPIO33_ADC1_CH5_TOUCH8, 
+  -1, -1, -1, -1, -1
 };
 
 const int analogInputPinsB[8] = {
-  GPIO33_ADC1_CH5_TOUCH8,
-  GPIO25_ADC2_CH8_DAC1_I2S_LCK,
-  GPIO26_ADC2_CH9_CAM_SIOD_DAC2_I2S_BCK, -1, -1, -1, -1, -1
+  GPIO27_ADC2_CH7_CAM_SIOC_TOUCH7,
+  GPIO25_ADC2_CH8_DAC1_I2S_LCK, 
+  GPIO32_ADC1_CH4_TOUCH9,
+  -1, -1, -1, -1, -1
 };
 
 
-const int outputPinsA[8] = {
-  GPIO27_ADC2_CH7_CAM_SIOC_TOUCH7,
-  GPIO14_ADC2_CH6_HSPI_CLK_TOUCH6,
-  GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI,
-  GPIO13_ADC2_CH4_HSPI_MOS1_TOUCH4,
+const int outputPinsA[2] = {
   GPIO19_VSPI_MISO_CAM_Y5,
-  GPIO21_I2C_SDA,
-  GPIO22_I2C_SCL,
-  GPIO23_VSPI_MOSI
+  GPIO18_VSPI_CLK_CAM_Y4,
+
 };
 
 const int outputPinsB[8] = {
@@ -85,8 +82,8 @@ const int outputPinsB[8] = {
 };
 
 const int outputFLEDPins[2] = {
-  GPIO12_ADC2_CH5_HSPI_MOS0_TOUCH5_MTDI,
-  GPIO16_U2RXD_WS2812_16
+  FLED_PIN1,
+  FLED_PIN2
 };
 
 const int RXTX_Pins[2][2] = {
@@ -94,10 +91,15 @@ const int RXTX_Pins[2][2] = {
   {GPIO16_U2RXD_WS2812_16, GPIO17_U2TXD}
 };
 
-
+int pulseCount[NUM_FLED_CHANNELS] = {0, 0, 0};
 int ledCount[NUM_FLED_CHANNELS] = {0, 0, 0};
-int lastLedCount[NUM_FLED_CHANNELS] = {-1, -1, -1}; // Tracks the last LED count for each dial
+int lastLedCount[NUM_FLED_CHANNELS] = { -1, -1, -1}; // Tracks the last LED count for each dial
 
+const int digitalMatrixIOPins[2][2] = {{0, 0}, {0, 0}};
+bool buttonMatrixState[2][2] = {{false, false}, {false, false}};
+int lastMatrixButtonPressed = 0;
+
+const int I2C_Pins[2][2] = {{0, 0}, {0, 0}};
 
 static unsigned long lastExecutionTime = 0; // Tracks the last execution time
 
@@ -136,7 +138,7 @@ void saveNodeSettings() {
   preferences.putString("storedVersion", nodeSettings.storedVersion);
   preferences.end();
   printSerial("storedVersion saved: ");
-  printSerialln(nodeSettings.storedVersion,1000);
+  printSerialln(nodeSettings.storedVersion, 1000);
 }
 
 void loadNodeSettings() {

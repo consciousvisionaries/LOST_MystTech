@@ -70,9 +70,9 @@ void handleDigitalInputChangeA(int pinIndex) {
       // Trigger action only if the pin goes LOW (e.g., a button press)
       if (currentState == LOW) {
         if (pinIndex == 0) {
-          //executeFUNCBatchGPIOPin1();
+          executeFUNCBatchButton1_PIN(EXEC_BATCH1_PIN);
         } else if (pinIndex == 1) {
-          //executeFUNCBatchGPIOPin2();
+          executeFUNCBatchButton2();
         } else if (pinIndex == 2) {
           //executeFUNCBatchGPIOPin3();
         }
@@ -167,7 +167,7 @@ void handleDigitalMatrixIOPairsChange() {
       if (currentButtonState != buttonMatrixState[row][col] && buttonMatrixState[row][col] == LOW) {
         buttonMatrixState[row][col] = currentButtonState;
         MATRIXIO_changed = true;
-        ledButtonArray.setPWM(PWM1[lastMatrixButtonPressed -1] - 1, 0, 0); // 2048 is 50% brightness
+        ledButtonArray.setPWM(PWM1[-lastMatrixButtonPressed -1] - 1, 0, 0); // 2048 is 50% brightness
 
         lastMatrixButtonPressed = (col + 1 + (row * NUM_DIGITAL_IOMATRIXPAIRS));
         ledButtonArray.setPWM(PWM1[lastMatrixButtonPressed-1] - 1 , 0, 4095); // 2048 is 50% brightness
